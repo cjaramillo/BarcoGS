@@ -1,0 +1,527 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6E99301D-8099-4F68-84E3-88FCF35B9D10}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Barco</RootNamespace>
+    <AssemblyName>Barco</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>\\fercho\Latinium\BarcoAPP\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Unc</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <InstallUrl>\\fercho\Latinium\BarcoAPP\</InstallUrl>
+    <ProductName>Barco</ProductName>
+    <PublisherName>GraphicSource C.A.</PublisherName>
+    <SuiteName>Importaciones</SuiteName>
+    <ApplicationRevision>11</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <BootstrapperComponentsUrl>\\fer\Instaladores\Framework.net</BootstrapperComponentsUrl>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Barco_icono.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>9EFA4F099AC4B6DC978E8A0DD8BCF6321BB8227A</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>Barco_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304" />
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304" />
+    <Reference Include="CrystalDecisions.Windows.Forms, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="FlashControlV71, Version=1.0.3187.32366, Culture=neutral, PublicKeyToken=692fbea5521e1304" />
+    <Reference Include="Infragistics4.Shared.v13.1, Version=13.1.20131.1001, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.Misc.v13.1, Version=13.1.20131.1001, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.UltraWinGrid.v13.1, Version=13.1.20131.1001, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="Infragistics4.Win.v13.1, Version=13.1.20131.1001, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio 12.0\Visual Studio Tools for Office\PIA\Office15\Microsoft.Office.Interop.Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AsignarOCaPC.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AsignarOCaPC.Designer.cs">
+      <DependentUpon>AsignarOCaPC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Auditoria.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Auditoria.Designer.cs">
+      <DependentUpon>Auditoria.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosAOCS.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosFactNorm.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosIBG.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosOCC.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosOCS.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosPagosAnticipos.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosPagosFactNorm.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosPC.cs" />
+    <Compile Include="CAD\Auditoria\Clases Abstractas\MostrarData.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosPP.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosSPAnticipos.cs" />
+    <Compile Include="CAD\Auditoria\Clases\AccesoDatosSPFactNorm.cs" />
+    <Compile Include="Datos.cs" />
+    <Compile Include="frmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain.Designer.cs">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LiqImportaciones.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LiqImportaciones.Designer.cs">
+      <DependentUpon>LiqImportaciones.cs</DependentUpon>
+    </Compile>
+    <Compile Include="moverIG.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="moverIG.Designer.cs">
+      <DependentUpon>moverIG.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OcultaDocumentos.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OcultaDocumentos.Designer.cs">
+      <DependentUpon>OcultaDocumentos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PreviaReportes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PreviaReportes.Designer.cs">
+      <DependentUpon>PreviaReportes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reglas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reglas.Designer.cs">
+      <DependentUpon>Reglas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReportesImportaciones.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReportesImportaciones.Designer.cs">
+      <DependentUpon>ReportesImportaciones.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RestauraIBG.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RestauraIBG.Designer.cs">
+      <DependentUpon>RestauraIBG.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Test.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Test.Designer.cs">
+      <DependentUpon>Test.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TransformaOrdenes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TransformaOrdenes.Designer.cs">
+      <DependentUpon>TransformaOrdenes.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="AsignarOCaPC.resx">
+      <DependentUpon>AsignarOCaPC.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Auditoria.resx">
+      <DependentUpon>Auditoria.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMain.resx">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LiqImportaciones.resx">
+      <DependentUpon>LiqImportaciones.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="moverIG.resx">
+      <DependentUpon>moverIG.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OcultaDocumentos.resx">
+      <DependentUpon>OcultaDocumentos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PreviaReportes.resx">
+      <DependentUpon>PreviaReportes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\licenses.licx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Reglas.resx">
+      <DependentUpon>Reglas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReportesImportaciones.resx">
+      <DependentUpon>ReportesImportaciones.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RestauraIBG.resx">
+      <DependentUpon>RestauraIBG.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Test.resx">
+      <DependentUpon>Test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TransformaOrdenes.resx">
+      <DependentUpon>TransformaOrdenes.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Barco_TemporaryKey.pfx" />
+    <None Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Barco_icono.ico" />
+    <Content Include="img\barco.jpg" />
+    <None Include="img\buscar_ico.jpg" />
+    <None Include="img\deshacer_ico.jpg" />
+    <None Include="img\editar_ico.jpg" />
+    <None Include="img\borrar_ico.jpg" />
+    <Content Include="img\Guardar 22px.jpg" />
+    <None Include="img\guardar_ico.jpg" />
+    <Content Include="img\iconoDeshacer 22px.jpg" />
+    <Content Include="img\iconoEditar 22px.jpg" />
+    <Content Include="img\iconoFiltrar 22px.jpg" />
+    <Content Include="img\IMG_ocultaOC.jpg" />
+    <None Include="img\imprimir_ico.jpg" />
+    <Content Include="img\nuevo_ico.jpg" />
+    <None Include="Resources\IMG_ocultaOC.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 y x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <PublishFile Include="CrystalDecisions.CrystalReports.Engine">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.ClientDoc">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.CommLayer">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.CommonControls">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.CommonObjectModel">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.Controllers">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.CubeDefModel">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.DataDefModel">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.DataSetConversion">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.ObjectFactory">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.Prompting">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.ReportDefModel">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportAppServer.XmlSerialize">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.ReportSource">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.Shared">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CrystalDecisions.Windows.Forms">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="Infragistics4.Shared.v13.1">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="Infragistics4.Win.Misc.v13.1">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="Infragistics4.Win.UltraWinGrid.v13.1">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="Infragistics4.Win.v13.1">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="log4net">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="stdole">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
