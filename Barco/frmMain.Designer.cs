@@ -137,6 +137,7 @@
             this.liquidarImportacionesToolStripMenuItem.Name = "liquidarImportacionesToolStripMenuItem";
             this.liquidarImportacionesToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.liquidarImportacionesToolStripMenuItem.Text = "Liquidar Importaciones";
+            this.liquidarImportacionesToolStripMenuItem.Visible = false;
             this.liquidarImportacionesToolStripMenuItem.Click += new System.EventHandler(this.liquidarImportacionesToolStripMenuItem_Click);
             // 
             // mReportes

@@ -170,7 +170,6 @@ namespace Barco
             return false;
         }
 
-
         void LeeRegistro(int idCompra)
         {
             string strSql = " SELECT Articulo.idArticulo,Compra.Numero, Articulo.Codigo, Articulo.Articulo, DetCompra.Cantidad, DetCompra.RefCodigo,"
@@ -284,15 +283,15 @@ namespace Barco
         {
             string strSql = ""; double Cantidad = 0;
             double Precio = 0;
-            string fecha, fecha1, numero, comprobante, refNum, estacionOc, vencimientoOc, fechaNormal, notas, departamento;  //CJ
-            int temporal = 0, idProveedor = 0; // CJ
-
+            string fecha, refNum;  //CJ
+            int temporal = 0; // CJ
 
             // Para determinar que cliente debe ir asignado a la OC (El que mas tiene en detcompra.)		
             string[] compraNumero = new string[99];
             int[] idCliente = new int[99];
             int[] nroVeces = new int[99];
             // Número de las órdenes de compra. Esto es para determinar que proveedor va como principal en la orden de compra.
+
 
             // Esta es para actualizar los anticipos en caso de que hayan pedido anticipo y que el mismo no esté cargado a la IG actual.
             string[] detNumero = new string[99];
@@ -395,10 +394,10 @@ namespace Barco
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 Cantidad = this.miClase.EjecutaEscalarF("Select cantidad From DetCompra Where IdDetCompra=" + dgvDatos[7,i].Value.ToString() + "");
-                Precio = this.miClase.EjecutaEscalarF("Select precio  From DetCompra Where IdDetCompra=" + dgvDatos[7, i].Value.ToString() + "");
-                fecha = this.miClase.EjecutaEscalarStr("select isnull(CAST('20'+convert(varchar(15),FechaRevision,12) as varchar(30)),CAST('20'+convert(varchar(15),GETDATE(),12) as varchar(30))) as fechaRevision from compra where idcompra=" + dgvDatos[9, i].Value.ToString() + ""); //CJ
                 if ((Convert.ToDouble(dgvDatos[4, i].Value.ToString()) <= Cantidad) && (Cantidad != 0))
                 {
+                    Precio = this.miClase.EjecutaEscalarF("Select precio From DetCompra Where IdDetCompra=" + dgvDatos[7, i].Value.ToString() + "");
+                    fecha = this.miClase.EjecutaEscalarStr("select isnull(CAST('20'+convert(varchar(15),FechaRevision,12) as varchar(30)),CAST('20'+convert(varchar(15),GETDATE(),12) as varchar(30))) as fechaRevision from compra where idcompra=" + dgvDatos[9, i].Value.ToString() + ""); //CJ
                     strSql = "Update DetCompra Set Cantidad=Cantidad-" + dgvDatos[4,i].Value.ToString() + " Where IdDetCompra=" + dgvDatos[7,i].Value.ToString() + "";
                     miClase.EjecutaSql(strSql, false);
                     refNum = dgvDatos[6, i].Value.ToString();
@@ -418,18 +417,9 @@ namespace Barco
                     {
                         // Esto me permite crear un registro en la tabla controlOCLotes por cada OC y no por cada detCompra
                         temporal = Int32.Parse(dgvDatos[9, i].Value.ToString());
-                        fecha1 = this.miClase.EjecutaEscalarStr("select isnull(CAST('20'+convert(varchar(15),FechaIngreso,12) as varchar(30)),CAST('20'+convert(varchar(15),fechaIngreso,12) as varchar(30))) as fechaIngreso from compra where idcompra=" + temporal + "");
-                        numero = this.miClase.EjecutaEscalarStr("select isnull(numero,'') as numero from compra where idCompra=" + temporal + "");
-                        comprobante = this.miClase.EjecutaEscalarStr("select isnull(comprobante,'') from compra where idcompra=" + temporal + " and idtipofactura=2");
-                        // aquí recuperar la data.
-                        vencimientoOc = this.miClase.EjecutaEscalarStr("select isnull(CAST('20'+convert(varchar(15),FechaVencimiento,12) as varchar(30)),CAST('20'+convert(varchar(15),fechaVencimiento,12) as varchar(30))) as fechaVencimiento from compra where idcompra=" + temporal + "");
-                        fechaNormal = this.miClase.EjecutaEscalarStr("select isnull(CAST('20'+convert(varchar(15),Fecha,12) as varchar(30)),CAST('20'+convert(varchar(15),fecha,12) as varchar(30))) as fecha from compra where idcompra=" + temporal + "");
-                        estacionOc = this.miClase.EjecutaEscalarStr("select isnull(estacion,'') as estacion from compra where idCompra=" + temporal + "");
-                        idProveedor = this.miClase.EjecutaEscalar("select top(1)idCliente as idCliente from compra where idCompra=" + temporal + "");
-                        notas = this.miClase.EjecutaEscalarStr("select compra.Notas from Compra where idTipoFactura=2 and idcompra=" + temporal + "");
-                        departamento = this.miClase.EjecutaEscalarStr("select isnull(compra.departamento,'') from compra where idtipofactura=2 and idcompra=" + temporal + "");
-                        strSql = "insert into controlOCLotes (idcompra, idcompra2,fechaIngreso, numero, comprobante, idCliente, estacionOC, fechaVencimiento, fecha, notas, departamento)" +
-                                "values (" + this.idCompra + "," + temporal + ",'" + fecha1 + "','" + numero + "','" + comprobante + "'," + idProveedor + ",'" + estacionOc + "','" + vencimientoOc + "','" + fechaNormal + "','" + notas + "','" + departamento + "')";
+
+                        // Paso la data al modelo para que haga la inserción mediante SP.
+                        strSql = @"exec sp_controlOCLotes " + this.idCompra +", "+ temporal.ToString() + " ";
                         miClase.EjecutaSql(strSql, false);
                         if (i > 0)
                         {
@@ -472,7 +462,7 @@ namespace Barco
             // Borrar las ordenes de compra que tienen solicitados anticipos y que fueron seleccionadas para consolidación, independientemente si quedaron con registros detcompra activos.
             // PENDIENTE
 
-            //Acá uso los vectores para actualizar el campo compra.pedido FASE 1
+            //Acá uso los arrays para actualizar el campo compra.pedido FASE 1
             for (int i = 0; i < 99; i++)
             {
                 if (compraNumero[i].CompareTo("") != 0)
@@ -490,7 +480,7 @@ namespace Barco
                 }
             }
 
-            //Acá uso los vectores para actualizar el campo compra.pedido FASE 2
+            //Acá uso los arrays para actualizar el campo compra.pedido FASE 2
             for (int i = 0; i < 99; i++)
             {
                 if (detNumero[i].CompareTo("") != 0)
@@ -507,77 +497,15 @@ namespace Barco
                         break; // Para que seguir buscando...
                 }
             }
-            // Actualiza el cargo a la IG en el detcompra de las facturas de ISD del ancitipo.
-            strSql = @"
-				declare @vNumero varchar(25), @vPedido varchar(25), @vIdDetCompra int, @vIdArticulo int, @vArticulo varchar(50), @vIdArticulo2 int
-				declare actualiza scroll cursor for
-					select compra.numero, compra.pedido, idDetCompra, Articulo.idarticulo, Articulo.Articulo
-					from Compra 
-						inner join DetCompra on compra.idCompra=DetCompra.idCompra 
-						inner join Articulo on detcompra.idArticulo=Articulo.idArticulo
-					where compra.Pedido like 'IG-%' and compra.Numero like '%ISD' and compra.idTipoFactura =4 
-						and compra.Usuario='SPLotes' and DetCompra.idArticulo<>10317 and (SUBSTRING(compra.Pedido, 1,6)+'/'+SUBSTRING(compra.Pedido, 9,3))<>Articulo.Articulo	
-				open actualiza
-					fetch next from actualiza into @vNumero, @vPedido, @vIdDetCompra, @vIdArticulo, @vArticulo
-					while (@@FETCH_STATUS<>-1)
-					begin
-						if(@@FETCH_STATUS<>-2)
-						begin
-							set @vIdArticulo2=0
-							select @vIdArticulo2=isnull(idarticulo,0) from Articulo where Articulo=(select SUBSTRING(@vPedido, 1,6)+'/'+SUBSTRING(@vPedido, 9,3))
-							if (@vIdArticulo2<>0)
-							begin
-								update DetCompra set idArticulo=@vIdArticulo2 where idDetCompra=@vIdDetCompra
-							end
-							else
-							begin
-								raiserror ('No se encontró un artículo.idArticulo asociado a la IG.',10,1)
-							end
-						end
-						fetch next from actualiza into @vNumero, @vPedido, @vIdDetCompra, @vIdArticulo, @vArticulo
-					end
-				close actualiza
-				deallocate actualiza
-			";
-            miClase.EjecutaSql(strSql, false);
 
-            // Actualiza el cargo a la IG en el detcompra de las facturas finales generadas por el sistema
-            strSql = @"
-				declare @vNumero varchar(25), @vPedido varchar(25), @vIdDetCompra int, @vIdArticulo int, @vArticulo varchar(50), @vIdArticulo2 int
-				declare actualiza scroll cursor for
-					select compra.numero, compra.pedido, idDetCompra, Articulo.idarticulo, Articulo.Articulo
-					from Compra 
-						inner join DetCompra on compra.idCompra=DetCompra.idCompra 
-	                    inner join Articulo on detcompra.idArticulo=Articulo.idArticulo
-	                    inner join cliente on compra.idcliente=cliente.idcliente
-                    where compra.Pedido like 'IG-%' and compra.Numero not like '%ISD' and compra.idTipoFactura =4 
-	                    and compra.Usuario<>'SPLotes' and DetCompra.idArticulo<>10317 and (SUBSTRING(compra.Pedido, 1,6)+'/'+SUBSTRING(compra.Pedido, 9,3))<>Articulo.Articulo	
-	                    and cliente.nombre like 'PE%'
-				open actualiza
-					fetch next from actualiza into @vNumero, @vPedido, @vIdDetCompra, @vIdArticulo, @vArticulo
-					while (@@FETCH_STATUS<>-1)
-					begin
-						if(@@FETCH_STATUS<>-2)
-						begin
-							set @vIdArticulo2=0
-							select @vIdArticulo2=isnull(idarticulo,0) from Articulo where Articulo=(select SUBSTRING(@vPedido, 1,6)+'/'+SUBSTRING(@vPedido, 9,3))
-							if (@vIdArticulo2<>0)
-							begin
-								update DetCompra set idArticulo=@vIdArticulo2 where idDetCompra=@vIdDetCompra
-							end
-							else
-							begin
-								raiserror ('No se encontró un artículo.idArticulo asociado a la IG.',10,1)
-							end
-						end
-						fetch next from actualiza into @vNumero, @vPedido, @vIdDetCompra, @vIdArticulo, @vArticulo
-					end
-				close actualiza
-				deallocate actualiza
-			";
-            miClase.EjecutaSql(strSql, false);
+            /*
+             * Anteriormente aquí abajo había bloques de código que se encargaban de:
+             * Actualizar el cargo a la IG en el detcompra de las facturas de ISD del ancitipo.
+             * Actualizar el cargo a la IG en el detcompra de las facturas finales generadas por el sistema
+             * Estos scripts serán migrados al sp_ActualizaAnticiposOCS para que sean ejecutados desde el módulo de alertas vía mail solo los lunes, miércoles y viernes.
+             * */
 
-
+            // Este bloque si debe correr al finalizar la consolidación.
             // Corregir los detcompra.idArticulo 'Anticipo ISD ' de los SP.
             strSql = @"DECLARE @nIG varchar(25)='" + txtNumero.Text + "', @vIdArticulo int=0  ";
             strSql = strSql +

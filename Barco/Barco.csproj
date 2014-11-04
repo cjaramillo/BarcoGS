@@ -28,7 +28,7 @@
     <ProductName>Barco</ProductName>
     <PublisherName>GraphicSource C.A.</PublisherName>
     <SuiteName>Importaciones</SuiteName>
-    <ApplicationRevision>11</ApplicationRevision>
+    <ApplicationRevision>14</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>

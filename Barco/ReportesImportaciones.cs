@@ -14,9 +14,6 @@ namespace Barco
     {
         private int numReporte = 0;
 
-       
-
-
         public ReportesImportaciones()
         {
             InitializeComponent();
@@ -290,8 +287,5 @@ namespace Barco
                 desactivaTodo();
             }
         }
-
-
-
     }
 }

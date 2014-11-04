@@ -1137,6 +1137,11 @@ namespace Barco
             adocc.llenaGrid(dgvOCC);
             adocc.estilo(dgvOCC);
 
+            /*
+             * Suprimo la carga de los componentes a continuación debido a que nunca los usan y retrasan la carga inicial del módulo.
+             * Además el seguimiento desde cualquiera de estos no está habilitado.
+             * 
+             * 
             // Anticipos (facturas) desde orden de compra simple
             adaocs.llenaGrid(dgvAnticiposOCS);
             adaocs.estilo(dgvAnticiposOCS);
@@ -1160,7 +1165,8 @@ namespace Barco
             // Pagos de Facturas Normales
             adpfn.llenaGrid(dgvPagosFacturaNormal);
             adpfn.estilo(dgvPagosFacturaNormal);
-            
+            */
+
             // Pedidos Proveedor
             adpp.llenaGrid(dgvPP);
             adpp.estilo(dgvPP);

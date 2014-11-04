@@ -503,6 +503,7 @@
             this.rbSPAnticiposOCS.TabStop = true;
             this.rbSPAnticiposOCS.Text = "Auditoría Individual";
             this.rbSPAnticiposOCS.UseVisualStyleBackColor = true;
+            this.rbSPAnticiposOCS.Visible = false;
             this.rbSPAnticiposOCS.CheckedChanged += new System.EventHandler(this.rbSPAnticiposOCS_CheckedChanged);
             // 
             // rbSpPagosNormal
@@ -515,6 +516,7 @@
             this.rbSpPagosNormal.TabStop = true;
             this.rbSpPagosNormal.Text = "Auditoría Individual";
             this.rbSpPagosNormal.UseVisualStyleBackColor = true;
+            this.rbSpPagosNormal.Visible = false;
             this.rbSpPagosNormal.CheckedChanged += new System.EventHandler(this.rbSpPagosNormal_CheckedChanged);
             // 
             // rbPagosAnticiposOCS
@@ -527,6 +529,7 @@
             this.rbPagosAnticiposOCS.TabStop = true;
             this.rbPagosAnticiposOCS.Text = "Auditoría Individual";
             this.rbPagosAnticiposOCS.UseVisualStyleBackColor = true;
+            this.rbPagosAnticiposOCS.Visible = false;
             this.rbPagosAnticiposOCS.CheckedChanged += new System.EventHandler(this.rbPagosAnticiposOCS_CheckedChanged);
             // 
             // rbPagosNormal
@@ -539,6 +542,7 @@
             this.rbPagosNormal.TabStop = true;
             this.rbPagosNormal.Text = "Auditoría Individual";
             this.rbPagosNormal.UseVisualStyleBackColor = true;
+            this.rbPagosNormal.Visible = false;
             this.rbPagosNormal.CheckedChanged += new System.EventHandler(this.rbPagosNormal_CheckedChanged);
             // 
             // rbIBG
@@ -563,6 +567,7 @@
             this.rbFacturasNormal.TabStop = true;
             this.rbFacturasNormal.Text = "Auditoría Individual";
             this.rbFacturasNormal.UseVisualStyleBackColor = true;
+            this.rbFacturasNormal.Visible = false;
             this.rbFacturasNormal.CheckedChanged += new System.EventHandler(this.rbFacturasNormal_CheckedChanged);
             // 
             // rbPP
@@ -587,6 +592,7 @@
             this.rbAnticiposOCS.TabStop = true;
             this.rbAnticiposOCS.Text = "Auditoría Individual";
             this.rbAnticiposOCS.UseVisualStyleBackColor = true;
+            this.rbAnticiposOCS.Visible = false;
             this.rbAnticiposOCS.CheckedChanged += new System.EventHandler(this.rbAnticiposOCS_CheckedChanged);
             // 
             // label13
