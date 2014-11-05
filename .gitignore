@@ -4,3 +4,6 @@ FECHAS MANUFACTURA 20140709.xlsx
 Modificaciones Criticas.xlsx
 Proceso de Anticipos.docx
 TIPOS DOCUMENTOS BARCO.xlsx
+# Todos los ficheros de la carpetas siguientes se generan automáticamente en tiempo de ejecución.
+/Barco/bin/
+/Barco/obj/
