@@ -57,11 +57,19 @@ namespace Barco
             {
                 Datos.strReporte = @"\\Servidor\Latinium\Reportes\";
             }
-
-
             Datos.strMaquina = miClase.EjecutaEscalarStr("select host_name()");
             Datos.idSucursal = miClase.EjecutaEscalar("Select Top 1 IdSucursal from SucursalGs Where Principal=1");
             this.Text += " Empresa: " + Datos.strBase.ToString();
+            if (Datos.strServidor.Trim().ToUpper().CompareTo("CESAR") == 0)
+            {
+                //lblServer.Text += Datos.strServidor;
+                lblServer.Text = "BDD DESARROLLO";
+                lblServer.BackColor = Color.LightGreen;
+            }
+            else
+            {
+                lblServer.Visible = false;
+            }
         }
 
 

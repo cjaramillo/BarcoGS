@@ -218,14 +218,14 @@ namespace Barco.CAD
                     {
                         // Hay data.
                         nroDias = Int32.Parse(dato);
-                        if (nroDias >= 4)
+                        if (nroDias >= 5)
                         {
                             dgv["diasRevision", i].Style.BackColor = Color.Red;
                             dgv["diasRevision", i].Style.ForeColor = Color.White;
                         }
                         else
                         {
-                            if (nroDias >= 0 && nroDias <= 3)
+                            if (nroDias >= 0 && nroDias <= 4)
                             {
                                 dgv["diasRevision", i].Style.BackColor = Color.Green; // Dentro de Lo permitido
                                 dgv["diasRevision", i].Style.ForeColor = Color.White;
@@ -237,13 +237,13 @@ namespace Barco.CAD
                     {
                         /*
                          * Si el doctor aún no ha entregado y si:
-                         * (la fecha de creación del plan de compras)-(la fecha actual) es >=4 
+                         * (la fecha de creación del plan de compras)-(la fecha actual) es >=5 
                          * entonces hay que pintar porque en teoría eso ya es un atraso
                          * */
                         DateTime dt1 = DateTime.Now;
                         DateTime dt2 = DateTime.Parse(dgv["Fecha Emisión", i].Value.ToString());
                         TimeSpan tiempo = dt1.Subtract(dt2);
-                        if ((tiempo.Days) >= 3)
+                        if ((tiempo.Days) >= 5)
                         {
                             dgv["diasRevision", i].Style.BackColor = Color.Orange;
                         }

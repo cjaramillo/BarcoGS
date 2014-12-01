@@ -1,9 +1,18 @@
+# Documentación interna que no debe ser cargada al remoto
 Casos de USO - Modulo Importaciones.docx
 Especificacion Tiempos Barco - Diccionario de Datos.xlsx
 FECHAS MANUFACTURA 20140709.xlsx
 Modificaciones Criticas.xlsx
 Proceso de Anticipos.docx
 TIPOS DOCUMENTOS BARCO.xlsx
-# Todos los ficheros de la carpetas siguientes se generan automáticamente en tiempo de ejecución.
+
+# Todos los ficheros de la carpetas siguientes se generan automáticamente en tiempo de compilación en VS2013
+# No existe la necesidad de agregarlos.
 /Barco/bin/
 /Barco/obj/
+/Barco/Properties/
+/Barco/bin/Debug/
+
+# Certificados personales para publicación
+Barco_1_TemporaryKey.pfx
+Barco_TemporaryKey.pfx

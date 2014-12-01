@@ -10,13 +10,40 @@ namespace Barco.CAD.Clases
 {
     class AccesoDatosPP : MostrarData
     {
+        
+        public int down_OCC(int idCompraPP) 
+        {
+            // Retorna un solo elemento int porque un OCC solo puede dar origen a un PP.
+            sqlQuery = @"
+                SELECT count(idCompra) FROM Compra WHERE idTipoFactura=2 and borrar=0 and usuario='OrdenLotes' and Numero in 
+	                (
+		                select Numero from Compra where idTipoFactura=14 and borrar=0 and idCompra=" + idCompraPP + @"
+	                )
+            ";
+            if (miClase.EjecutaEscalar(sqlQuery) > 0)
+            {
+                sqlQuery = @"
+                    SELECT idCompra FROM Compra WHERE idTipoFactura=2 and borrar=0 and usuario='OrdenLotes' and Numero in 
+	                    (
+		                    select Numero from Compra where idTipoFactura=14 and borrar=0 and idCompra=" + idCompraPP + @"
+	                    )
+                ";
+                return miClase.EjecutaEscalar(sqlQuery);
+            }
+            else
+            {
+                return -1;
+            }
+        }
+        
+
         public int up_IBG (int idCompraPP)
         {
             //Devuelve el idcompra del IBG asociado al PP que recibe.
             if (idCompraPP < 1)
                 return -1;
             sqlQuery = @"
-                select count(idcompra) from compra where idtipofactura=9 and comprobante in 
+                select count(idcompra) from compra where idtipofactura=9 and borrar=0 and comprobante in 
                 (
                     select numero from compra where idtipofactura=14 and borrar=0 and idcompra="+idCompraPP+@"
                 )
@@ -26,7 +53,7 @@ namespace Barco.CAD.Clases
                 return -1;
             }
             sqlQuery = @"
-                select top(1)idcompra from compra where idtipofactura=9 and comprobante in 
+                select top(1)idcompra from compra where idtipofactura=9 and borrar=0 and comprobante in 
                 (
                     select top(1)numero from compra where idtipofactura=14 and borrar=0 and idcompra=" + idCompraPP + @"
                 )
@@ -290,14 +317,14 @@ namespace Barco.CAD.Clases
                     {
                         // Hay data.
                         nroDias = Int32.Parse(dato);
-                        if (nroDias > 0)
+                        if (nroDias >= 4)
                         {
                             dgv["diasRetrasoTransforIBG", i].Style.BackColor = Color.Red;
                             dgv["diasRetrasoTransforIBG", i].Style.ForeColor = Color.White;
                         }
                         else
                         {
-                            if (nroDias <= 0)
+                            if (nroDias <= 3 && nroDias >= 0)
                             {
                                 dgv["diasRetrasoTransforIBG", i].Style.BackColor = Color.Green; // Dentro de Lo permitido
                                 dgv["diasRetrasoTransforIBG", i].Style.ForeColor = Color.White;

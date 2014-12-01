@@ -241,7 +241,7 @@ namespace Barco.CAD.Clases
 	                DATEDIFF(day, compra.fechaIngreso, sp.FechaIngreso),
 	                NI.observacion
 			) tabla 
-            where tabla.idCompraOCS=" + idRegistro + "  ";
+            where tabla.Proveedor not like 'PE %' and tabla.idCompraOCS=" + idRegistro + "  ";
 
             if (miClase.EjecutaEscalar(sqlQuery) > 0)
             {
@@ -338,7 +338,7 @@ namespace Barco.CAD.Clases
 	                        DATEDIFF(day, compra.fechaIngreso, sp.FechaIngreso),
 	                        NI.observacion
 			        ) tabla 
-                    where tabla.idCompraOCS=" + idRegistro + "  order by tabla.idCompra desc";
+                    where tabla.Proveedor not like 'PE %' and tabla.idCompraOCS=" + idRegistro + "  order by tabla.idCompra desc";
                 /*
                 Antes el where estaba así:
                 where tabla.idCompra="+idRegistro+ "  order by tabla.idCompra desc";
@@ -655,14 +655,14 @@ namespace Barco.CAD.Clases
                     {
                         // Hay data.
                         nroDias = Int32.Parse(dato);
-                        if (nroDias > 1)
+                        if (nroDias >= 3)
                         {
                             dgv["diasSolicitudAnticipo", i].Style.BackColor = Color.Red;
                             dgv["diasSolicitudAnticipo", i].Style.ForeColor = Color.White;
                         }
                         else
                         {
-                            if (nroDias == 0 || nroDias == 1)
+                            if (nroDias >= 0 && nroDias <= 2)
                             {
                                 dgv["diasSolicitudAnticipo", i].Style.BackColor = Color.Green; // Dentro de Lo permitido
                                 dgv["diasSolicitudAnticipo", i].Style.ForeColor = Color.White;

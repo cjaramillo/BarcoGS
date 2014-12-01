@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Barco
 {
-    class Datos
+    class Datos: IDisposable
     {
         #region "Variables Datos"
 
@@ -74,11 +74,36 @@ namespace Barco
         //static public bool AsiSolicitud;
         static public int idTipoFactura;
         //static public int idContrato;
-  
+        static public string strReporte;
 
         #endregion
 
-        static public string strReporte;
+
+        // Flag: Has Dispose already been called? 
+        bool disposed = false;
+
+        // Public implementation of Dispose pattern callable by consumers. 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern. 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+            if (disposing)
+            {
+                // Free any other managed objects here. 
+                //
+            }
+
+            // Free any unmanaged objects here. 
+            //
+            disposed = true;
+        }
 
         public void Conectar()
         {
@@ -135,8 +160,6 @@ namespace Barco
             }
         }
 
-
-
         public void LlenaCombo(ComboBox combo, string mitabla, string member, string valor, string filtro, bool Bloquear)
         {
             if (Bloquear == true) combo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -174,7 +197,6 @@ namespace Barco
                 MessageBox.Show(ex.Message, "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
-
 
         //Modifico la Funcion LLena Combo para mostrar n cantidad de registros Ordenados Descendentemente
 
@@ -362,6 +384,39 @@ namespace Barco
             return iescalar;
         }
 
+
+        public int[] EjecutaEscalarArray(string cadsql)
+        {
+            DataSet ds = new DataSet();
+            DataRow dr;
+            SqlDataAdapter sqlda = new SqlDataAdapter();
+            int[] array = new int[100];
+            int idCompra = 0;
+            if (EjecutaEscalar("select COUNT(*) from ("+cadsql+") a") > 0)
+            {
+                sqlda.SelectCommand = new SqlCommand(cadsql, Datos.sqlConn);
+                sqlda.Fill(ds, "tabla");
+                ds.Tables["tabla"].Rows[0].ToString();
+                if (ds.Tables["tabla"].Rows.Count > 0)
+                {
+                    for (int i = 0; i < ds.Tables["tabla"].Rows.Count; i++)
+                    {
+                        dr = ds.Tables["tabla"].Rows[i];
+                        //idCompra = Int32.Parse(dr["idCompra"].ToString()); // no manejo excepción. de la integridad de los datos se encarga el sgbd
+                        idCompra = Int32.Parse(dr[0].ToString()); // no manejo excepción. de la integridad de los datos se encarga el sgbd
+                        array[i] = idCompra;
+                    }
+                }
+            }
+            else
+            {
+                // No hay ningún PP asociado a este IBG
+                array[0] = -1;
+            }
+            return array;
+        }
+
+
         public string EjecutaSP(string nombreSP, string [,] parametrosIn, string parametroOut, SqlDbType tipoRetorno ) { 
             // Permite ejecutar un SP y retorna un object con el tipo de dato de retorno.
             // Siempre se asume que las matrices tienen 2 columnas y n filas.
@@ -400,7 +455,6 @@ namespace Barco
             return "-99";
         }
 
-
         public void LlenaGrid(DataGridView grilla, string mitabla, string comandosql)
         {
             Conectar();
@@ -432,7 +486,6 @@ namespace Barco
             }
 
         }
-
 
         public void LlenaGridAux(DataGrid grilla, string mitabla, string comandosql)
         {

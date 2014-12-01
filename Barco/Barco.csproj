@@ -28,7 +28,7 @@
     <ProductName>Barco</ProductName>
     <PublisherName>GraphicSource C.A.</PublisherName>
     <SuiteName>Importaciones</SuiteName>
-    <ApplicationRevision>14</ApplicationRevision>
+    <ApplicationRevision>17</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -66,7 +66,8 @@
     <ManifestCertificateThumbprint>9EFA4F099AC4B6DC978E8A0DD8BCF6321BB8227A</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>Barco_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -244,6 +245,7 @@
     <EmbeddedResource Include="TransformaOrdenes.resx">
       <DependentUpon>TransformaOrdenes.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="Barco_1_TemporaryKey.pfx" />
     <None Include="Barco_TemporaryKey.pfx" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">

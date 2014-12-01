@@ -42,6 +42,7 @@
             this.liquidarImportacionesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mReportes = new System.Windows.Forms.ToolStripMenuItem();
             this.mGenerarReportes = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblServer = new System.Windows.Forms.Label();
             this.mPrincipal.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -155,12 +156,23 @@
             this.mGenerarReportes.Text = "Generar Reportes";
             this.mGenerarReportes.Click += new System.EventHandler(this.mGenerarReportes_Click);
             // 
+            // lblServer
+            // 
+            this.lblServer.AutoSize = true;
+            this.lblServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblServer.Location = new System.Drawing.Point(1117, 4);
+            this.lblServer.Name = "lblServer";
+            this.lblServer.Size = new System.Drawing.Size(85, 20);
+            this.lblServer.TabIndex = 3;
+            this.lblServer.Text = "Servidor: ";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::Barco.Properties.Resources.barco;
             this.ClientSize = new System.Drawing.Size(1214, 632);
+            this.Controls.Add(this.lblServer);
             this.Controls.Add(this.mPrincipal);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
@@ -192,6 +204,7 @@
         private System.Windows.Forms.ToolStripMenuItem testToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem respaldaYRestauraIBGToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem liquidarImportacionesToolStripMenuItem;
+        private System.Windows.Forms.Label lblServer;
     }
 }
 

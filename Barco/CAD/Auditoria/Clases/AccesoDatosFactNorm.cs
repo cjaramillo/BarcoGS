@@ -33,36 +33,34 @@ namespace Barco.CAD.Clases
             }
             dgv.Columns.Clear();
             sqlQuery = @"
-                SELECT  Top(150) Compra.idCompra, detcompra.idDetCompra, detcompra.idarticulo, Compra.FechaIngreso AS 'Fecha Ingreso', 
-		                Compra.Numero as 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', Articulo.Articulo, 
-		                SUBSTRING(Articulo.Articulo, 1,6)+'-2'+SUBSTRING(Articulo.Articulo, 8,10) as 'IG',
-		                CAST(Compra.Notas AS varchar(2000)) AS Notas, Compra.Fecha, Compra.FechaVencimiento AS 'Fecha Vencimiento', 
-		                Compra.Estacion, Compra.Total AS 'Valor Factura', 
-		                SUM(DetCompra.Precio) + SUM(DetCompra.Precio * DetCompra.Impuesto / 100) AS 'Valor cargado a la IG',
-		                datediff(DAY, compra.Fecha, compra.FechaIngreso) as'Dias Ingreso de Factura', 
-		                sum(pago.pago) as 'Suma Pagos', MIN(pago.fecha) as 'Fecha Primer Pago', MAX(pago.fecha) as 'Fecha Último Pago',
-		                tiemposAuditoria.PlazoPagoFacturaDias as 'Plazo Días Pago Facturas',
-		                case when sum(pago.Pago) is null then null else DATEDIFF(day, compra.fecha, max(pago.fecha)) end as 'Dias Pago Factura',
-		                case when sum(pago.Pago) is null OR tiemposAuditoria.PlazoPagoFacturaDias IS null then 
-							null 
-						else 
-							DATEDIFF(day, compra.fecha, max(pago.fecha))-tiemposAuditoria.PlazoPagoFacturaDias
-						end as 'Atraso dias Pago',
-		                Compra.Otro as 'Comprobante SP', Compra.Pedido, NovedadImportacion.Observacion
-                FROM    DetCompra 
-		                INNER JOIN Compra ON DetCompra.idCompra = Compra.idCompra
-		                INNER JOIN Cliente on Compra.idCliente=Cliente.idCliente
-		                INNER JOIN Articulo on detcompra.idArticulo=Articulo.idArticulo
-		                LEFT OUTER JOIN NovedadImportacion ON Compra.idCompra = NovedadImportacion.idDocumento
-		                LEFT OUTER JOIN Pago on detcompra.idCompra=pago.idCompra
-		                LEFT OUTER JOIN tiemposAuditoria on compra.idCliente=tiemposAuditoria.idClientePE
-                WHERE   DetCompra.idArticulo IN (SELECT idArticulo FROM Articulo WHERE  Articulo LIKE 'IG-%') 
-		                AND Compra.idTipoFactura=4 and compra.Usuario<>'SPLotes'
-                GROUP BY Compra.idCompra, detcompra.iddetcompra,Compra.FechaIngreso, Compra.Numero, Cliente.Nombre, 
-		                CAST(Compra.Notas AS varchar(2000)), 
-		                Compra.Fecha, Compra.FechaVencimiento, Compra.Usuario, Compra.estacion, Compra.Total, Compra.Otro, Compra.Pedido,
-		                NovedadImportacion.Observacion, Articulo.Articulo,detcompra.idarticulo,tiemposAuditoria.PlazoPagoFacturaDias
-                ORDER BY Compra.idCompra desc
+               SELECT     Compra.idCompra, DetCompra.idDetCompra, DetCompra.idArticulo, Compra.FechaIngreso AS 'Fecha Ingreso', Compra.Numero AS 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', 
+                      Artic.Articulo, SUBSTRING(Artic.Articulo, 1, 6) + '-2' + SUBSTRING(Artic.Articulo, 8, 10) AS 'IG', CAST(Compra.Notas AS varchar(2000)) AS Notas, Compra.Fecha, 
+                      Compra.FechaVencimiento AS 'Fecha Vencimiento', Compra.Estacion, Compra.Total AS 'Valor Factura', SUM(DetCompra.Precio) + SUM(DetCompra.Precio * DetCompra.Impuesto / 100) 
+                      AS 'Valor cargado a la IG', DATEDIFF(DAY, Compra.Fecha, Compra.FechaIngreso) AS 'Dias Ingreso de Factura', Pagos.SumaPagos AS 'Suma Pagos', pagos.FechaMin AS 'Fecha Primer Pago', 
+                      pagos.FechaMax AS 'Fecha Último Pago', tiemposAuditoria.PlazoPagoFacturaDias AS 'Plazo Días Pago Facturas', CASE WHEN pagos.SumaPagos IS NULL THEN NULL ELSE DATEDIFF(day, 
+                      compra.fecha, Pagos.FechaMax) END AS 'Dias Pago Factura', CASE WHEN Pagos.SumaPagos IS NULL OR
+                      tiemposAuditoria.PlazoPagoFacturaDias IS NULL THEN NULL ELSE DATEDIFF(day, compra.fecha, pagos.FechaMax) - tiemposAuditoria.PlazoPagoFacturaDias END AS 'Atraso dias Pago', 
+                      Compra.Otro AS 'Comprobante SP', Compra.Pedido, NovedadImportacion.observacion
+				FROM  DetCompra RIGHT OUTER JOIN
+                      (
+						SELECT idArticulo, Articulo
+                        FROM   Articulo
+                        WHERE  Articulo LIKE 'IG-%'
+                      ) AS Artic ON DetCompra.idArticulo = Artic.idArticulo LEFT OUTER JOIN
+                      Compra ON DetCompra.idCompra = Compra.idCompra LEFT OUTER JOIN
+                      Cliente ON Compra.idCliente = Cliente.idCliente LEFT OUTER JOIN
+                      NovedadImportacion ON Compra.idCompra = NovedadImportacion.idDocumento LEFT OUTER JOIN
+                      (
+	                    select idCompra,SUM(Pago) as SumaPagos,MIN(pago.Fecha) as FechaMin, MAX(pago.Fecha) as FechaMax, COUNT(Pago.Pago) as CuentaPagos
+						from pago where pago.Borrar=0
+						group by pago.idCompra
+                      ) Pagos on detcompra.idCompra=Pagos.idCompra LEFT OUTER JOIN
+                      tiemposAuditoria ON Compra.idCliente = tiemposAuditoria.idClientePE
+				WHERE     (Compra.idTipoFactura = 4) AND (Compra.Usuario <> 'SPLotes')
+				GROUP BY Compra.idCompra,DetCompra.idDetCompra,DetCompra.idArticulo,Compra.FechaIngreso,Compra.Numero, Cliente.Nombre, Artic.Articulo,CAST(Compra.Notas AS varchar(2000)),
+					Compra.Fecha,Compra.FechaVencimiento, Compra.Estacion, Compra.Total, Pagos.SumaPagos, Pagos.FechaMin, Pagos.FechaMax, tiemposAuditoria.PlazoPagoFacturaDias,
+					Compra.Otro, Compra.Pedido, NovedadImportacion.observacion
+				ORDER BY Compra.idCompra DESC
             ";
             miClase.LlenaGrid(dgv, "detcompra", sqlQuery);
             estilo(dgv);
@@ -74,6 +72,7 @@ namespace Barco.CAD.Clases
             if (dgv == null || idRegistro < 1)
                 return -1;
             dgv.Columns.Clear();
+            /*
             sqlQuery = @"
                 SELECT  Top(150) Compra.idCompra, detcompra.idDetCompra, detcompra.idarticulo, Compra.FechaIngreso AS 'Fecha Ingreso', 
 		                Compra.Numero as 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', Articulo.Articulo, 
@@ -105,6 +104,36 @@ namespace Barco.CAD.Clases
 		                Compra.Fecha, Compra.FechaVencimiento, Compra.Usuario, Compra.estacion, Compra.Total, Compra.Otro, Compra.Pedido,
 		                NovedadImportacion.Observacion, Articulo.Articulo,detcompra.idarticulo,tiemposAuditoria.PlazoPagoFacturaDias
                 ORDER BY Compra.idCompra desc
+            ";*/
+            sqlQuery = @"
+                SELECT     Compra.idCompra, DetCompra.idDetCompra, DetCompra.idArticulo, Compra.FechaIngreso AS 'Fecha Ingreso', Compra.Numero AS 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', 
+                      Artic.Articulo, SUBSTRING(Artic.Articulo, 1, 6) + '-2' + SUBSTRING(Artic.Articulo, 8, 10) AS 'IG', CAST(Compra.Notas AS varchar(2000)) AS Notas, Compra.Fecha, 
+                      Compra.FechaVencimiento AS 'Fecha Vencimiento', Compra.Estacion, Compra.Total AS 'Valor Factura', SUM(DetCompra.Precio) + SUM(DetCompra.Precio * DetCompra.Impuesto / 100) 
+                      AS 'Valor cargado a la IG', DATEDIFF(DAY, Compra.Fecha, Compra.FechaIngreso) AS 'Dias Ingreso de Factura', Pagos.SumaPagos AS 'Suma Pagos', pagos.FechaMin AS 'Fecha Primer Pago', 
+                      pagos.FechaMax AS 'Fecha Último Pago', tiemposAuditoria.PlazoPagoFacturaDias AS 'Plazo Días Pago Facturas', CASE WHEN pagos.SumaPagos IS NULL THEN NULL ELSE DATEDIFF(day, 
+                      compra.fecha, Pagos.FechaMax) END AS 'Dias Pago Factura', CASE WHEN Pagos.SumaPagos IS NULL OR
+                      tiemposAuditoria.PlazoPagoFacturaDias IS NULL THEN NULL ELSE DATEDIFF(day, compra.fecha, pagos.FechaMax) - tiemposAuditoria.PlazoPagoFacturaDias END AS 'Atraso dias Pago', 
+                      Compra.Otro AS 'Comprobante SP', Compra.Pedido, NovedadImportacion.observacion
+				FROM  DetCompra RIGHT OUTER JOIN
+                      (
+						SELECT idArticulo, Articulo
+                        FROM   Articulo
+                        WHERE  Articulo LIKE 'IG-%'
+                      ) AS Artic ON DetCompra.idArticulo = Artic.idArticulo LEFT OUTER JOIN
+                      Compra ON DetCompra.idCompra = Compra.idCompra LEFT OUTER JOIN
+                      Cliente ON Compra.idCliente = Cliente.idCliente LEFT OUTER JOIN
+                      NovedadImportacion ON Compra.idCompra = NovedadImportacion.idDocumento LEFT OUTER JOIN
+                      (
+	                    select idCompra,SUM(Pago) as SumaPagos,MIN(pago.Fecha) as FechaMin, MAX(pago.Fecha) as FechaMax, COUNT(Pago.Pago) as CuentaPagos
+						from pago where pago.Borrar=0
+						group by pago.idCompra
+                      ) Pagos on detcompra.idCompra=Pagos.idCompra LEFT OUTER JOIN
+                      tiemposAuditoria ON Compra.idCliente = tiemposAuditoria.idClientePE
+				WHERE     (Compra.idTipoFactura = 4) AND (Compra.Usuario <> 'SPLotes') AND compra.idcompra=" + idRegistro + @" 
+				GROUP BY Compra.idCompra,DetCompra.idDetCompra,DetCompra.idArticulo,Compra.FechaIngreso,Compra.Numero, Cliente.Nombre, Artic.Articulo,CAST(Compra.Notas AS varchar(2000)),
+					Compra.Fecha,Compra.FechaVencimiento, Compra.Estacion, Compra.Total, Pagos.SumaPagos, Pagos.FechaMin, Pagos.FechaMax, tiemposAuditoria.PlazoPagoFacturaDias,
+					Compra.Otro, Compra.Pedido, NovedadImportacion.observacion
+				ORDER BY Compra.idCompra DESC
             ";
             miClase.LlenaGrid(dgv, "detcompra", sqlQuery);
             estilo(dgv);
@@ -137,6 +166,7 @@ namespace Barco.CAD.Clases
             {
                 return -1;
             }
+            /*
             sqlQuery = @"
                 SELECT  Top(150) Compra.idCompra, detcompra.idDetCompra, detcompra.idarticulo, Compra.FechaIngreso AS 'Fecha Ingreso', 
 		                Compra.Numero as 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', Articulo.Articulo, 
@@ -169,6 +199,38 @@ namespace Barco.CAD.Clases
 		                NovedadImportacion.Observacion, Articulo.Articulo,detcompra.idarticulo,tiemposAuditoria.PlazoPagoFacturaDias
                 ORDER BY Compra.idCompra desc            
             ";
+             * */
+            sqlQuery = @"
+                SELECT     Compra.idCompra, DetCompra.idDetCompra, DetCompra.idArticulo, Compra.FechaIngreso AS 'Fecha Ingreso', Compra.Numero AS 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', 
+                      Artic.Articulo, SUBSTRING(Artic.Articulo, 1, 6) + '-2' + SUBSTRING(Artic.Articulo, 8, 10) AS 'IG', CAST(Compra.Notas AS varchar(2000)) AS Notas, Compra.Fecha, 
+                      Compra.FechaVencimiento AS 'Fecha Vencimiento', Compra.Estacion, Compra.Total AS 'Valor Factura', SUM(DetCompra.Precio) + SUM(DetCompra.Precio * DetCompra.Impuesto / 100) 
+                      AS 'Valor cargado a la IG', DATEDIFF(DAY, Compra.Fecha, Compra.FechaIngreso) AS 'Dias Ingreso de Factura', Pagos.SumaPagos AS 'Suma Pagos', pagos.FechaMin AS 'Fecha Primer Pago', 
+                      pagos.FechaMax AS 'Fecha Último Pago', tiemposAuditoria.PlazoPagoFacturaDias AS 'Plazo Días Pago Facturas', CASE WHEN pagos.SumaPagos IS NULL THEN NULL ELSE DATEDIFF(day, 
+                      compra.fecha, Pagos.FechaMax) END AS 'Dias Pago Factura', CASE WHEN Pagos.SumaPagos IS NULL OR
+                      tiemposAuditoria.PlazoPagoFacturaDias IS NULL THEN NULL ELSE DATEDIFF(day, compra.fecha, pagos.FechaMax) - tiemposAuditoria.PlazoPagoFacturaDias END AS 'Atraso dias Pago', 
+                      Compra.Otro AS 'Comprobante SP', Compra.Pedido, NovedadImportacion.observacion
+				FROM  DetCompra RIGHT OUTER JOIN
+                      (
+						SELECT idArticulo, Articulo
+                        FROM   Articulo
+                        WHERE  Articulo LIKE 'IG-%'
+                      ) AS Artic ON DetCompra.idArticulo = Artic.idArticulo LEFT OUTER JOIN
+                      Compra ON DetCompra.idCompra = Compra.idCompra LEFT OUTER JOIN
+                      Cliente ON Compra.idCliente = Cliente.idCliente LEFT OUTER JOIN
+                      NovedadImportacion ON Compra.idCompra = NovedadImportacion.idDocumento LEFT OUTER JOIN
+                      (
+	                    select idCompra,SUM(Pago) as SumaPagos,MIN(pago.Fecha) as FechaMin, MAX(pago.Fecha) as FechaMax, COUNT(Pago.Pago) as CuentaPagos
+						from pago where pago.Borrar=0
+						group by pago.idCompra
+                      ) Pagos on detcompra.idCompra=Pagos.idCompra LEFT OUTER JOIN
+                      tiemposAuditoria ON Compra.idCliente = tiemposAuditoria.idClientePE
+				WHERE     (Compra.idTipoFactura = 4) AND (Compra.Usuario <> 'SPLotes') AND Compra.idCompra in (" + listaIds + @")
+				GROUP BY Compra.idCompra,DetCompra.idDetCompra,DetCompra.idArticulo,Compra.FechaIngreso,Compra.Numero, Cliente.Nombre, Artic.Articulo,CAST(Compra.Notas AS varchar(2000)),
+					Compra.Fecha,Compra.FechaVencimiento, Compra.Estacion, Compra.Total, Pagos.SumaPagos, Pagos.FechaMin, Pagos.FechaMax, tiemposAuditoria.PlazoPagoFacturaDias,
+					Compra.Otro, Compra.Pedido, NovedadImportacion.observacion
+				ORDER BY Compra.idCompra DESC
+            ";
+
             miClase.LlenaGrid(dgv, "detcompra", sqlQuery);
             estilo(dgv);
             return 0;
@@ -183,6 +245,7 @@ namespace Barco.CAD.Clases
             dgv.Columns.Clear();
             string desde = vDesde.AddDays(-1).ToString("yyyyMMdd", CultureInfo.InvariantCulture);
             string hasta = vHasta.AddDays(1).ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            /*
             sqlQuery = @"
                 SELECT  Top(150) Compra.idCompra, detcompra.idDetCompra, detcompra.idarticulo, Compra.FechaIngreso AS 'Fecha Ingreso', 
 		                Compra.Numero as 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', Articulo.Articulo, 
@@ -208,13 +271,45 @@ namespace Barco.CAD.Clases
 		                LEFT OUTER JOIN Pago on detcompra.idCompra=pago.idCompra
 		                LEFT OUTER JOIN tiemposAuditoria on compra.idCliente=tiemposAuditoria.idClientePE
                 WHERE   DetCompra.idArticulo IN (SELECT idArticulo FROM Articulo WHERE  Articulo LIKE 'IG-%') 
-		                AND Compra.idTipoFactura=4 and compra.Usuario<>'SPLotes' and and compra.fecha>='" + desde + "' and compra.fecha<='" + hasta + @"' 
+		                AND Compra.idTipoFactura=4 and compra.Usuario<>'SPLotes' and compra.fecha>='" + desde + "' and compra.fecha<='" + hasta + @"' 
                 GROUP BY Compra.idCompra, detcompra.iddetcompra,Compra.FechaIngreso, Compra.Numero, Cliente.Nombre, 
 		                CAST(Compra.Notas AS varchar(2000)), 
 		                Compra.Fecha, Compra.FechaVencimiento, Compra.Usuario, Compra.estacion, Compra.Total, Compra.Otro, Compra.Pedido,
 		                NovedadImportacion.Observacion, Articulo.Articulo,detcompra.idarticulo,tiemposAuditoria.PlazoPagoFacturaDias
                 ORDER BY Compra.idCompra desc
             ";
+             * */
+            sqlQuery = @"
+                SELECT     Compra.idCompra, DetCompra.idDetCompra, DetCompra.idArticulo, Compra.FechaIngreso AS 'Fecha Ingreso', Compra.Numero AS 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', 
+                      Artic.Articulo, SUBSTRING(Artic.Articulo, 1, 6) + '-2' + SUBSTRING(Artic.Articulo, 8, 10) AS 'IG', CAST(Compra.Notas AS varchar(2000)) AS Notas, Compra.Fecha, 
+                      Compra.FechaVencimiento AS 'Fecha Vencimiento', Compra.Estacion, Compra.Total AS 'Valor Factura', SUM(DetCompra.Precio) + SUM(DetCompra.Precio * DetCompra.Impuesto / 100) 
+                      AS 'Valor cargado a la IG', DATEDIFF(DAY, Compra.Fecha, Compra.FechaIngreso) AS 'Dias Ingreso de Factura', Pagos.SumaPagos AS 'Suma Pagos', pagos.FechaMin AS 'Fecha Primer Pago', 
+                      pagos.FechaMax AS 'Fecha Último Pago', tiemposAuditoria.PlazoPagoFacturaDias AS 'Plazo Días Pago Facturas', CASE WHEN pagos.SumaPagos IS NULL THEN NULL ELSE DATEDIFF(day, 
+                      compra.fecha, Pagos.FechaMax) END AS 'Dias Pago Factura', CASE WHEN Pagos.SumaPagos IS NULL OR
+                      tiemposAuditoria.PlazoPagoFacturaDias IS NULL THEN NULL ELSE DATEDIFF(day, compra.fecha, pagos.FechaMax) - tiemposAuditoria.PlazoPagoFacturaDias END AS 'Atraso dias Pago', 
+                      Compra.Otro AS 'Comprobante SP', Compra.Pedido, NovedadImportacion.observacion
+				FROM  DetCompra RIGHT OUTER JOIN
+                      (
+						SELECT idArticulo, Articulo
+                        FROM   Articulo
+                        WHERE  Articulo LIKE 'IG-%'
+                      ) AS Artic ON DetCompra.idArticulo = Artic.idArticulo LEFT OUTER JOIN
+                      Compra ON DetCompra.idCompra = Compra.idCompra LEFT OUTER JOIN
+                      Cliente ON Compra.idCliente = Cliente.idCliente LEFT OUTER JOIN
+                      NovedadImportacion ON Compra.idCompra = NovedadImportacion.idDocumento LEFT OUTER JOIN
+                      (
+	                    select idCompra,SUM(Pago) as SumaPagos,MIN(pago.Fecha) as FechaMin, MAX(pago.Fecha) as FechaMax, COUNT(Pago.Pago) as CuentaPagos
+						from pago where pago.Borrar=0
+						group by pago.idCompra
+                      ) Pagos on detcompra.idCompra=Pagos.idCompra LEFT OUTER JOIN
+                      tiemposAuditoria ON Compra.idCliente = tiemposAuditoria.idClientePE
+				WHERE     (Compra.idTipoFactura = 4) AND (Compra.Usuario <> 'SPLotes') AND compra.fecha>='" + desde + "' and compra.fecha<='" + hasta + @"' 
+				GROUP BY Compra.idCompra,DetCompra.idDetCompra,DetCompra.idArticulo,Compra.FechaIngreso,Compra.Numero, Cliente.Nombre, Artic.Articulo,CAST(Compra.Notas AS varchar(2000)),
+					Compra.Fecha,Compra.FechaVencimiento, Compra.Estacion, Compra.Total, Pagos.SumaPagos, Pagos.FechaMin, Pagos.FechaMax, tiemposAuditoria.PlazoPagoFacturaDias,
+					Compra.Otro, Compra.Pedido, NovedadImportacion.observacion
+				ORDER BY Compra.idCompra DESC
+            ";
+
             miClase.LlenaGrid(dgv, "detcompra", sqlQuery);
             estilo(dgv);
             return 0;
@@ -226,6 +321,8 @@ namespace Barco.CAD.Clases
             if (dgv == null || idArticulo < 1)
                 return -1;
             dgv.Columns.Clear();
+
+            /*
             sqlQuery = @"
                 SELECT  Top(150) Compra.idCompra, detcompra.idDetCompra, detcompra.idarticulo, Compra.FechaIngreso AS 'Fecha Ingreso', 
 		                Compra.Numero as 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', Articulo.Articulo, 
@@ -257,6 +354,38 @@ namespace Barco.CAD.Clases
 		                Compra.Fecha, Compra.FechaVencimiento, Compra.Usuario, Compra.estacion, Compra.Total, Compra.Otro, Compra.Pedido,
 		                NovedadImportacion.Observacion, Articulo.Articulo,detcompra.idarticulo,tiemposAuditoria.PlazoPagoFacturaDias
                 ORDER BY Compra.idCompra desc
+            ";
+             * */
+
+            sqlQuery = @"
+                SELECT     Compra.idCompra, DetCompra.idDetCompra, DetCompra.idArticulo, Compra.FechaIngreso AS 'Fecha Ingreso', Compra.Numero AS 'Nro. Factura', Cliente.Nombre AS 'Proveedor en Factura', 
+                      Artic.Articulo, SUBSTRING(Artic.Articulo, 1, 6) + '-2' + SUBSTRING(Artic.Articulo, 8, 10) AS 'IG', CAST(Compra.Notas AS varchar(2000)) AS Notas, Compra.Fecha, 
+                      Compra.FechaVencimiento AS 'Fecha Vencimiento', Compra.Estacion, Compra.Total AS 'Valor Factura', SUM(DetCompra.Precio) + SUM(DetCompra.Precio * DetCompra.Impuesto / 100) 
+                      AS 'Valor cargado a la IG', DATEDIFF(DAY, Compra.Fecha, Compra.FechaIngreso) AS 'Dias Ingreso de Factura', Pagos.SumaPagos AS 'Suma Pagos', pagos.FechaMin AS 'Fecha Primer Pago', 
+                      pagos.FechaMax AS 'Fecha Último Pago', tiemposAuditoria.PlazoPagoFacturaDias AS 'Plazo Días Pago Facturas', CASE WHEN pagos.SumaPagos IS NULL THEN NULL ELSE DATEDIFF(day, 
+                      compra.fecha, Pagos.FechaMax) END AS 'Dias Pago Factura', CASE WHEN Pagos.SumaPagos IS NULL OR
+                      tiemposAuditoria.PlazoPagoFacturaDias IS NULL THEN NULL ELSE DATEDIFF(day, compra.fecha, pagos.FechaMax) - tiemposAuditoria.PlazoPagoFacturaDias END AS 'Atraso dias Pago', 
+                      Compra.Otro AS 'Comprobante SP', Compra.Pedido, NovedadImportacion.observacion
+				FROM  DetCompra RIGHT OUTER JOIN
+                      (
+						SELECT idArticulo, Articulo
+                        FROM   Articulo
+                        WHERE  Articulo LIKE 'IG-%'
+                      ) AS Artic ON DetCompra.idArticulo = Artic.idArticulo LEFT OUTER JOIN
+                      Compra ON DetCompra.idCompra = Compra.idCompra LEFT OUTER JOIN
+                      Cliente ON Compra.idCliente = Cliente.idCliente LEFT OUTER JOIN
+                      NovedadImportacion ON Compra.idCompra = NovedadImportacion.idDocumento LEFT OUTER JOIN
+                      (
+	                    select idCompra,SUM(Pago) as SumaPagos,MIN(pago.Fecha) as FechaMin, MAX(pago.Fecha) as FechaMax, COUNT(Pago.Pago) as CuentaPagos
+						from pago where pago.Borrar=0
+						group by pago.idCompra
+                      ) Pagos on detcompra.idCompra=Pagos.idCompra LEFT OUTER JOIN
+                      tiemposAuditoria ON Compra.idCliente = tiemposAuditoria.idClientePE
+				WHERE     (Compra.idTipoFactura = 4) AND (Compra.Usuario <> 'SPLotes') AND detcompra.idArticulo=" + idArticulo + @" 
+				GROUP BY Compra.idCompra,DetCompra.idDetCompra,DetCompra.idArticulo,Compra.FechaIngreso,Compra.Numero, Cliente.Nombre, Artic.Articulo,CAST(Compra.Notas AS varchar(2000)),
+					Compra.Fecha,Compra.FechaVencimiento, Compra.Estacion, Compra.Total, Pagos.SumaPagos, Pagos.FechaMin, Pagos.FechaMax, tiemposAuditoria.PlazoPagoFacturaDias,
+					Compra.Otro, Compra.Pedido, NovedadImportacion.observacion
+				ORDER BY Compra.idCompra DESC
             ";
             miClase.LlenaGrid(dgv, "detcompra", sqlQuery);
             estilo(dgv);

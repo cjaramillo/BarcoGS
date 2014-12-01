@@ -213,49 +213,7 @@ namespace Barco
                         if (idOCC != -1)
                         {
                             adocc.llenaGrid(dgvOCC, idOCC); // Mostrar OCC
-                            if (adocc.validaNombreIG(idOCC))
-                            {
-                                // Voy a buscar facturas normales, con sus SP y sus pagos desde una orden de compra consolidada, en caso de que la tuviese:
-                                adfn.llenaGrid2(dgvFacturasNormales, adocc.up_idArticulo(idOCC));
-                                if (dgvFacturasNormales.RowCount < 1)
-                                {
-                                    // No hay nada que mostrar
-                                    dgvFacturasNormales.Columns.Clear();
-                                    lblNoDataFacturasNormal.Visible = true;
-                                    dgvSPFacturaNormal.Columns.Clear();
-                                    lblNoDataSPNormal.Visible = true;
-                                    dgvPagosFacturaNormal.Columns.Clear();
-                                    lblNoDataPagosNormal.Visible = true;
-                                }
-                                else
-                                {
-                                    // Aqui hay que cargar los SP y los pagos asociados a esas facturas en caso de que existan.
-                                    int[] idCompraSPFN = new int[100];
-                                    idCompraSPFN = adocc.up_spFacturasNormales(adocc.up_idArticulo(idOCC));
-                                    if (idCompraSPFN[0] != -1)
-                                        adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
-                                    else
-                                    {
-                                        // No hay ningún SP asociado a este idArticulo.
-                                        dgvSPFacturaNormal.Columns.Clear();
-                                        lblNoDataSPNormal.Visible = true;
-                                    }
-                                    // Aquí va la carga de los pagos de facturas normales proveedores.
-                                    int[] idCompraFN = new int[100];
-                                    for (int i = 0; i < 100; i++)
-                                        idCompraFN[i] = 0;
-                                    for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
-                                        idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString()); // Acá me tira error.. seguramente no estoy recuperando la data correctamente.
-                                    adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
-                                    if (dgvPagosFacturaNormal.RowCount < 1)
-                                    {
-                                        // Ningún pago que mostrar.
-                                        dgvPagosFacturaNormal.Columns.Clear();
-                                        lblNoDataPagosNormal.Visible = true;
-                                    }
-                                }
-                            }
-
+                            occ_soloFact(idOCC); // Mostrar solo facturas normales tomando en cuenta el número de la OCC p.e.( IG-198-2014=IG-198/014
                             // Buscar si tengo PP creado desde OCC.
                             idPP=adocc.up_PP(idOCC);
                             if (idPP != -1)
@@ -290,109 +248,15 @@ namespace Barco
                             lblNoDataOCC.Visible = true;
                         }
                         // Independientemente que tenga o no enlace a OCC puede tener anticipos ligados a la OCS.
-                        int[] idCompras = new int[100];
-                        idCompras = adocs.up_FacturasAnticipos(idOCS);
-                        if (idCompras[0] != -1)
-                        {
-                            // Si tengo facturas de anticipos asociadas a este OCS
-                            lblNoDataAnticipos.Visible = false;
-                            adaocs.llenaGrid(dgvAnticiposOCS, idCompras);
-                            // Cargar las SP de anticipos desde OCS
-                            if (adaocs.up_SP(idCompras[0]) != -1) 
-                            {
-                                // OJO: Le cargo solo la primera posición porque esta auditoria es desde PC y esta solo tiene asociado un OCS, 
-                                // por ende esta OCS tiene asociadas dos facturas, y estas estan cargadas a un solo SP. No tengo mas
-                                // casos de uso.
-                                adspa.llenaGrid(dgvSPAnticiposOCS, adaocs.up_SP(idCompras[0]));
-                            }
-                            else
-                            {
-                                // no hay SP de anticipos generados desde OCS.
-                                dgvSPAnticiposOCS.Columns.Clear();
-                                lblNoDataSPAnticipos.Visible = true;
-                            }
-
-                            // Cargar Pagos de anticipos.
-                            adpa.llenaGrid(dgvPagosAnticiposOCS, idCompras); // Cargo y verifico de golpe.
-
-                            if (dgvPagosAnticiposOCS.RowCount == 0)
-                            {
-                                // No hay ni un solo pago de anticipo.
-                                dgvPagosAnticiposOCS.Columns.Clear();
-                                lblNoDataPagoAnticipos.Visible = true;
-                            }
-                        }
-                        else
-                        {
-                            // No tengo ninguna factura de anticipos desde OCS, por tanto no hay sp de anticipos ni pagos de anticipos
-                            dgvAnticiposOCS.Columns.Clear();
-                            lblNoDataAnticipos.Visible = true;
-                            dgvSPAnticiposOCS.Columns.Clear();
-                            lblNoDataSPAnticipos.Visible = true;
-                            dgvPagosAnticiposOCS.Columns.Clear();
-                            lblNoDataPagoAnticipos.Visible = true;
-                        }
+                        ocs_soloAnticipos(idOCS);
 
                         /*
                         * Voy a buscar facturas normales cargadas a esa IG.. siempre y cuando la OCS ya sea una IG.
                         * Para esto hay que validar que el nombre de la OCS cumpla con el formato 'IG-XXX-20XX'
                         * Como estoy buscando desde PC hacia arriba solo voy a tener una sola OCS. OJO.
                         * */
-
-                        if (dgvOCC.RowCount<1 && adocs.validaNombreIG(idOCS))
-                        {
-                           adfn.llenaGrid2(dgvFacturasNormales, adocs.up_idArticulo(idOCS));
-                           if (dgvFacturasNormales.RowCount< 1)
-                            {
-                                // No hay nada que mostrar
-                                dgvFacturasNormales.Columns.Clear();
-                                lblNoDataFacturasNormal.Visible = true;
-                                dgvSPFacturaNormal.Columns.Clear();
-                                lblNoDataSPNormal.Visible = true;
-                                dgvPagosFacturaNormal.Columns.Clear();
-                                lblNoDataPagosNormal.Visible = true;
-                            }
-                           else
-                           {
-                               // Aqui hay que cargar los SP y los pagos asociados a esas facturas.
-                               int[] idCompraSPFN = new int[100];
-                               idCompraSPFN = adocs.up_spFacturasNormales(adocs.up_idArticulo(idOCS));
-                               if (idCompraSPFN[0] != -1)
-                                   adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
-                               else
-                               {
-                                   // No hay ningún SP asociado a este idArticulo.
-                                   dgvSPFacturaNormal.Columns.Clear();
-                                   lblNoDataSPNormal.Visible = true;
-                               }
-                               // Aquí va la carga de los pagos de facturas normales proveedores.
-                               int[] idCompraFN = new int[100];
-                               for (int i = 0; i < 100; i++)
-                                   idCompraFN[i] = 0;
-                               for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
-                                   idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString());
-                               adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
-                               if (dgvPagosFacturaNormal.RowCount<1)
-                               {
-                                   // Ningún pago que mostrar.
-                                   dgvPagosFacturaNormal.Columns.Clear();
-                                   lblNoDataPagosNormal.Visible = true;
-                               }
-                           }
-                        }
-
-                        if (dgvOCC.RowCount < 1 && !adocs.validaNombreIG(idOCS))
-                        {
-                            // Es un nombre de IG NO Válido. Por tanto:
-                            // No hay Facturas Normales, ni SP, ni pagos.
-                            dgvFacturasNormales.Columns.Clear();
-                            lblNoDataFacturasNormal.Visible = true;
-                            dgvSPFacturaNormal.Columns.Clear();
-                            lblNoDataSPNormal.Visible = true;
-                            dgvPagosFacturaNormal.Columns.Clear();
-                            lblNoDataPagosNormal.Visible = true;
-                        }
-
+                        ocs_soloFacturas(idOCS);
+                                                
                         if (PPcargado == 0)
                         {
                             // No se cargó el PP aún, el último intento fue cargarlo después de mostrar el OCC
@@ -465,6 +329,175 @@ namespace Barco
             estilizar();
         }
 
+        private void ocs_soloAnticipos (int idOCS)
+        {
+            // Este método se encarga de llenar los grids #4,5,6 a partir de un idOCS
+            // Este método se encarga de llenar los grids # 4,5,6,7,8,9 a partir de un idOCS.
+            int[] idCompras = new int[100];
+            idCompras = adocs.up_FacturasAnticipos(idOCS);
+            if (idCompras[0] != -1)
+            {
+                // Si tengo facturas de anticipos asociadas a este OCS
+                lblNoDataAnticipos.Visible = false;
+                adaocs.llenaGrid(dgvAnticiposOCS, idOCS);
+                // Cargar las SP de anticipos desde OCS
+                int idSP = adaocs.up_SP(idCompras[0]);
+                if (idSP != -1)
+                {
+                    // OJO: Le cargo solo la ultima posición del array que sea distinta de cero, porque este método hace referencia a un solo OCS, y por lógica se puede obtener un
+                    // solo anticipo por cada OCS; cada anticipo está comprendido por dos facturas de compra las mismas que están ligadas a un solo SP. no existen mas casos de uso.
+                    // Si requiere trabajar con un conjunto de idOCS consulte el método occ_anticiposyFacturas (int idOCC).
+                    adspa.llenaGrid(dgvSPAnticiposOCS, idSP);
+                }
+                else
+                {
+                    // no hay SP de anticipos generados desde OCS.
+                    dgvSPAnticiposOCS.Columns.Clear();
+                    lblNoDataSPAnticipos.Visible = true;
+                }
+
+                // Cargar Pagos de anticipos.
+                adpa.llenaGrid(dgvPagosAnticiposOCS, idCompras); // Cargo y verifico de golpe.
+
+                if (dgvPagosAnticiposOCS.RowCount == 0)
+                {
+                    // No hay ni un solo pago de anticipo.
+                    dgvPagosAnticiposOCS.Columns.Clear();
+                    lblNoDataPagoAnticipos.Visible = true;
+                }
+            }
+            else
+            {
+                // No tengo ninguna factura de anticipos desde OCS, por tanto no hay sp de anticipos ni pagos de anticipos
+                dgvAnticiposOCS.Columns.Clear();
+                lblNoDataAnticipos.Visible = true;
+                dgvSPAnticiposOCS.Columns.Clear();
+                lblNoDataSPAnticipos.Visible = true;
+                dgvPagosAnticiposOCS.Columns.Clear();
+                lblNoDataPagoAnticipos.Visible = true;
+            }
+        }
+
+        private void ocs_soloFacturas(int idOCS)
+        {
+            // Este método se encarga de llenar los grids #7,8,9 a partir de un idOCS
+            /*
+            * Voy a buscar facturas normales cargadas a esa IG.. siempre y cuando la OCS ya sea una IG.
+            * Para esto hay que validar que el nombre de la OCS cumpla con el formato 'IG-XXX-20XX'
+            * OJO: Este método hace referencia a una sola OCS.
+            * */
+
+            //if (dgvOCC.RowCount < 1 && adocs.validaNombreIG(idOCS)) // No considero prudente involucrar al dgvOCC.RowCount puesto que el borrado de columnas de dgvOCC podría posponerse, lo cual afectaría a esta comparación.
+            if (adocs.validaNombreIG(idOCS))
+            {
+                int idArticulo = adocs.up_idArticulo(idOCS);
+                adfn.llenaGrid2(dgvFacturasNormales, idArticulo);
+                if (dgvFacturasNormales.RowCount < 1)
+                {
+                    // No hay nada que mostrar
+                    dgvFacturasNormales.Columns.Clear();
+                    lblNoDataFacturasNormal.Visible = true;
+                    dgvSPFacturaNormal.Columns.Clear();
+                    lblNoDataSPNormal.Visible = true;
+                    dgvPagosFacturaNormal.Columns.Clear();
+                    lblNoDataPagosNormal.Visible = true;
+                }
+                else
+                {
+                    // Aqui hay que cargar los SP y los pagos asociados a esas facturas.
+                    int[] idCompraSPFN = new int[100];
+                    idCompraSPFN = adocs.up_spFacturasNormales(idArticulo);
+                    if (idCompraSPFN[0] != -1)
+                        adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
+                    else
+                    {
+                        // No hay ningún SP asociado a este idArticulo.
+                        dgvSPFacturaNormal.Columns.Clear();
+                        lblNoDataSPNormal.Visible = true;
+                    }
+                    // Aquí va la carga de los pagos de facturas normales proveedores.
+                    int[] idCompraFN = new int[100];
+                    for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
+                        idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString());
+                    adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
+                    if (dgvPagosFacturaNormal.RowCount < 1)
+                    {
+                        // Ningún pago que mostrar.
+                        dgvPagosFacturaNormal.Columns.Clear();
+                        lblNoDataPagosNormal.Visible = true;
+                    }
+                }
+            }
+
+            if (dgvOCC.RowCount < 1 && !adocs.validaNombreIG(idOCS))
+            {
+                // No tengo nada en dgvOCC y el número de la OCS no es un nombre de IG Válido. Por tanto:
+                // No hay Facturas Normales, ni SP de estos, ni pagos tampoco.
+                dgvFacturasNormales.Columns.Clear();
+                lblNoDataFacturasNormal.Visible = true;
+                dgvSPFacturaNormal.Columns.Clear();
+                lblNoDataSPNormal.Visible = true;
+                dgvPagosFacturaNormal.Columns.Clear();
+                lblNoDataPagosNormal.Visible = true;
+            }
+
+        }
+
+
+        private void ocs_anticiposyFacturas(int idOCS)
+        {
+            ocs_soloAnticipos(idOCS);
+            ocs_soloFacturas(idOCS);
+        }
+
+
+        private void occ_soloFact(int idOCC)
+        {
+            if (adocc.validaNombreIG(idOCC))
+            {
+                // Voy a buscar facturas normales, con sus SP y sus pagos desde una orden de compra consolidada, en caso de que la tuviese:
+                adfn.llenaGrid2(dgvFacturasNormales, adocc.up_idArticulo(idOCC));
+                if (dgvFacturasNormales.RowCount < 1)
+                {
+                    // No hay nada que mostrar
+                    dgvFacturasNormales.Columns.Clear();
+                    lblNoDataFacturasNormal.Visible = true;
+                    dgvSPFacturaNormal.Columns.Clear();
+                    lblNoDataSPNormal.Visible = true;
+                    dgvPagosFacturaNormal.Columns.Clear();
+                    lblNoDataPagosNormal.Visible = true;
+                }
+                else
+                {
+                    // Aqui hay que cargar los SP y los pagos asociados a esas facturas en caso de que existan.
+                    int[] idCompraSPFN = new int[100];
+                    idCompraSPFN = adocc.up_spFacturasNormales(adocc.up_idArticulo(idOCC));
+                    if (idCompraSPFN[0] != -1)
+                        adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
+                    else
+                    {
+                        // No hay ningún SP asociado a este idArticulo.
+                        dgvSPFacturaNormal.Columns.Clear();
+                        lblNoDataSPNormal.Visible = true;
+                    }
+                    // Aquí va la carga de los pagos de facturas normales proveedores.
+                    int[] idCompraFN = new int[100];
+                    for (int i = 0; i < 100; i++)
+                        idCompraFN[i] = 0;
+                    for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
+                        idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString()); // Acá me tira error.. seguramente no estoy recuperando la data correctamente.
+                    adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
+                    if (dgvPagosFacturaNormal.RowCount < 1)
+                    {
+                        // Ningún pago que mostrar.
+                        dgvPagosFacturaNormal.Columns.Clear();
+                        lblNoDataPagosNormal.Visible = true;
+                    }
+                }
+            }
+        }
+
+
         private void rbOCS_CheckedChanged(object sender, EventArgs e)
         {
             int idOCS = 0, error = 0, idPC = 0, idOCC = 0, idPP = 0, idIBG = 0, PPcargado = 0;
@@ -515,48 +548,7 @@ namespace Barco
                     if (idOCC != -1)
                     {
                         adocc.llenaGrid(dgvOCC, idOCC); // Mostrar OCC
-                        if (adocc.validaNombreIG(idOCC))
-                        {
-                            // Voy a buscar facturas normales, con sus SP y sus pagos desde una orden de compra consolidada, en caso de que la tuviese:
-                            adfn.llenaGrid2(dgvFacturasNormales, adocc.up_idArticulo(idOCC));
-                            if (dgvFacturasNormales.RowCount < 1)
-                            {
-                                // No hay nada que mostrar
-                                dgvFacturasNormales.Columns.Clear();
-                                lblNoDataFacturasNormal.Visible = true;
-                                dgvSPFacturaNormal.Columns.Clear();
-                                lblNoDataSPNormal.Visible = true;
-                                dgvPagosFacturaNormal.Columns.Clear();
-                                lblNoDataPagosNormal.Visible = true;
-                            }
-                            else
-                            {
-                                // Aqui hay que cargar los SP y los pagos asociados a esas facturas en caso de que existan.
-                                int[] idCompraSPFN = new int[100];
-                                idCompraSPFN = adocc.up_spFacturasNormales(adocc.up_idArticulo(idOCC));
-                                if (idCompraSPFN[0] != -1)
-                                    adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
-                                else
-                                {
-                                    // No hay ningún SP asociado a este idArticulo.
-                                    dgvSPFacturaNormal.Columns.Clear();
-                                    lblNoDataSPNormal.Visible = true;
-                                }
-                                // Aquí va la carga de los pagos de facturas normales proveedores.
-                                int[] idCompraFN = new int[100];
-                                for (int i = 0; i < 100; i++)
-                                    idCompraFN[i] = 0;
-                                for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
-                                    idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString()); // Acá me tira error.. seguramente no estoy recuperando la data correctamente.
-                                adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
-                                if (dgvPagosFacturaNormal.RowCount < 1)
-                                {
-                                    // Ningún pago que mostrar.
-                                    dgvPagosFacturaNormal.Columns.Clear();
-                                    lblNoDataPagosNormal.Visible = true;
-                                }
-                            }
-                        }
+                        occ_soloFact(idOCC);
 
                         // Buscar si tengo PP creado desde OCC.
                         idPP = adocc.up_PP(idOCC);
@@ -593,164 +585,7 @@ namespace Barco
                     }
                     // Independientemente que tenga o no enlace a OCC puede tener anticipos ligados a la OCS.
                     // Como estoy en el rbOCS tengo seleccionado un solo DataGridViewRow
-                    // string nroOCS = dgvOCS.SelectedRows[0].Cells[5].Value.ToString(); // Extraigo el numero de la OCS. Ya no trabajo con el nroOCS.
-                    int[] idCompras = new int[100];
-                    idCompras = adocs.up_FacturasAnticipos(idOCS);
-                    if (idCompras[0] != -1)
-                    {
-                        // Si tengo facturas de anticipos asociadas a este OCS
-                        lblNoDataAnticipos.Visible = false;
-                        //adaocs.llenaGrid(dgvAnticiposOCS, idCompras); // Esto no rescataba todos los anticipos.
-                        adaocs.llenaGrid(dgvAnticiposOCS, idOCS);
-                        // Cargar las SP de anticipos desde OCS
-                        int maxPos = 0;
-                        for (int i = 0; i < 100; i++)
-                        {
-                            if (idCompras[i + 1] == 0)
-                            {
-                                maxPos = i;
-                                break;
-                            }
-                        }
-
-                        if (adaocs.up_SP(idCompras[maxPos]) != -1)
-                        {
-                            // OJO: Le cargo solo la ultima posición del array que sea distinta de cero, porque esta auditoria es desde PC y esta solo tiene asociado un OCS, 
-                            // por ende esta OCS tiene asociadas dos facturas, y estas estan cargadas a un solo SP. No tengo mas
-                            // casos de uso.
-                            adspa.llenaGrid(dgvSPAnticiposOCS, adaocs.up_SP(idCompras[maxPos]));
-                        }
-                        else
-                        {
-                            // no hay SP de anticipos generados desde OCS.
-                            dgvSPAnticiposOCS.Columns.Clear();
-                            lblNoDataSPAnticipos.Visible = true;
-                        }
-
-                        // Cargar Pagos de anticipos.
-                        adpa.llenaGrid(dgvPagosAnticiposOCS, idCompras); // Cargo y verifico de golpe.
-
-                        if (dgvPagosAnticiposOCS.RowCount == 0)
-                        {
-                            // No hay ni un solo pago de anticipo.
-                            dgvPagosAnticiposOCS.Columns.Clear();
-                            lblNoDataPagoAnticipos.Visible = true;
-                        }
-                    }
-                    else
-                    {
-                        /*
-                         * Si llego hasta acá significa que no encontró ningún anticipo asociado con el número de OCS, sin embargo tengo una segunda opción (y mas fiable)
-                         * al buscar en base al idCompra de la OCS.
-                        */
-                        int idCompraOCS = Int32.Parse(dgvOCS.SelectedRows[0].Cells[0].Value.ToString());
-                        idCompras = new int[100];
-                        idCompras = adocs.up_FacturasAnticipos(idCompraOCS);
-                        if (idCompras[0] != -1)
-                        { 
-                            // Encontró el anticipo.
-                            // Si tengo facturas de anticipos asociadas a este OCS
-                            lblNoDataAnticipos.Visible = false;
-                            adaocs.llenaGrid(dgvAnticiposOCS, idCompras);
-                            // Cargar las SP de anticipos desde OCS
-                            if (adaocs.up_SP(idCompras[0]) != -1)
-                            {
-                                // OJO: Le cargo solo la primera posición porque esta auditoria es desde PC y esta solo tiene asociado un OCS, 
-                                // por ende esta OCS tiene asociadas dos facturas, y estas estan cargadas a un solo SP. No tengo mas
-                                // casos de uso.
-                                adspa.llenaGrid(dgvSPAnticiposOCS, adaocs.up_SP(idCompras[0]));
-                            }
-                            else
-                            {
-                                // no hay SP de anticipos generados desde OCS.
-                                dgvSPAnticiposOCS.Columns.Clear();
-                                lblNoDataSPAnticipos.Visible = true;
-                            }
-                            // Cargar Pagos de anticipos.
-                            // Verificar si el conjunto de OCS tiene asociados pagos.
-
-
-
-                            adpa.llenaGrid(dgvPagosAnticiposOCS, idCompras); // Cargo y verifico de golpe.
-                            if (dgvPagosAnticiposOCS.RowCount == 0)
-                            {
-                                // No hay ni un solo pago de anticipo.
-                                dgvPagosAnticiposOCS.Columns.Clear();
-                                lblNoDataPagoAnticipos.Visible = true;
-                            }
-                        }
-                        else
-                        {
-                            // Descartados los 2 métodos - uno por el nombre de la OCS y el otro por el idCompra de la OCS.
-                            // No tengo ninguna factura de anticipos desde OCS, por tanto no hay sp de anticipos ni pagos de anticipos
-                            dgvAnticiposOCS.Columns.Clear();
-                            lblNoDataAnticipos.Visible = true;
-                            dgvSPAnticiposOCS.Columns.Clear();
-                            lblNoDataSPAnticipos.Visible = true;
-                            dgvPagosAnticiposOCS.Columns.Clear();
-                            lblNoDataPagoAnticipos.Visible = true;
-                        }
-                    }
-
-                    /*
-                    * Voy a buscar facturas normales cargadas a esa IG.. siempre y cuando la OCS ya sea una IG.
-                    * Para esto hay que validar que el nombre de la OCS cumpla con el formato 'IG-XXX-20XX'
-                    * Como estoy buscando desde PC hacia arriba solo voy a tener una sola OCS. OJO.
-                    * */
-
-                    if (dgvOCC.RowCount < 1 && adocs.validaNombreIG(idOCS))
-                    {
-                        adfn.llenaGrid2(dgvFacturasNormales, adocs.up_idArticulo(idOCS));
-                        if (dgvFacturasNormales.RowCount < 1)
-                        {
-                            // No hay nada que mostrar
-                            dgvFacturasNormales.Columns.Clear();
-                            lblNoDataFacturasNormal.Visible = true;
-                            dgvSPFacturaNormal.Columns.Clear();
-                            lblNoDataSPNormal.Visible = true;
-                            dgvPagosFacturaNormal.Columns.Clear();
-                            lblNoDataPagosNormal.Visible = true;
-                        }
-                        else
-                        {
-                            // Aqui hay que cargar los SP y los pagos asociados a esas facturas.
-                            int[] idCompraSPFN = new int[100];
-                            idCompraSPFN = adocs.up_spFacturasNormales(adocs.up_idArticulo(idOCS));
-                            if (idCompraSPFN[0] != -1)
-                                adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
-                            else
-                            {
-                                // No hay ningún SP asociado a este idArticulo.
-                                dgvSPFacturaNormal.Columns.Clear();
-                                lblNoDataSPNormal.Visible = true;
-                            }
-                            // Aquí va la carga de los pagos de facturas normales proveedores.
-                            int[] idCompraFN = new int[100];
-                            for (int i = 0; i < 100; i++)
-                                idCompraFN[i] = 0;
-                            for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
-                                idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString());
-                            adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
-                            if (dgvPagosFacturaNormal.RowCount < 1)
-                            {
-                                // Ningún pago que mostrar.
-                                dgvPagosFacturaNormal.Columns.Clear();
-                                lblNoDataPagosNormal.Visible = true;
-                            }
-                        }
-                    }
-
-                    if (dgvOCC.RowCount < 1 && !adocs.validaNombreIG(idOCS))
-                    {
-                        // Es un nombre de IG NO Válido. Por tanto:
-                        // No hay Facturas Normales, ni SP, ni pagos.
-                        dgvFacturasNormales.Columns.Clear();
-                        lblNoDataFacturasNormal.Visible = true;
-                        dgvSPFacturaNormal.Columns.Clear();
-                        lblNoDataSPNormal.Visible = true;
-                        dgvPagosFacturaNormal.Columns.Clear();
-                        lblNoDataPagosNormal.Visible = true;
-                    }
+                    ocs_anticiposyFacturas(idOCS);
 
                     if (PPcargado == 0)
                     {
@@ -792,10 +627,147 @@ namespace Barco
             estilizar();
         }
 
+
+        private void occ_anticiposyFacturas(int idOCC)
+        {
+            int[] idCompraOCS = new int[100];
+            idCompraOCS = adocc.down_OCS(idOCC);
+            /*
+             * Este método se encarga de llenar los grids # 4,5,6,7,8,9 a partir de un idOCC y un array que contiene las idCompra de las OCS que dieron origen a la OCC.
+             * IMPORTANTE: Se asume que ya se han cargado en dgvOCS todas las órdenes de compra que dieron origen a la OCC de la idOCC.
+             * Busqueda de anticipos desde OCS.
+             * 
+             */
+            if (dgvOCS.RowCount > 1)
+            {
+                // Tengo un conjunto de OCS.. Aquí me toca recorrer el dgvOCS para ver si alguna de estas tiene generado anticipos desde el carro.
+                // Recorrer el dgvOCS para obtener un array que tenga el nombre de las OCS cuyo campo pedido no se encuentre en blanco.
+                int[] idCompraOCSArray = new int[100]; // Aquí voy a almacenar todos los idcompraOCS que se estén mostrando en el dgvOCS
+                for (int i = 0; i < dgvOCS.RowCount; i++)
+                {
+                    idCompraOCSArray[i] = Int32.Parse(dgvOCS.Rows[i].Cells[0].Value.ToString());
+                }
+                int[] idFactCompraAnticipos = new int[100];
+                idFactCompraAnticipos = adocs.up_FacturasAnticipos(idCompraOCSArray);
+                if (idFactCompraAnticipos[0] != -1)
+                {
+                    adaocs.llenaGrid(dgvAnticiposOCS, idFactCompraAnticipos);
+                    // de aquí tengo que cargar las SP de los anticipos.
+                    int[] idCompraSPAnticipos = new int[100]; // En este vector se almacenarán todos los SP asociados a las OCS.
+                    idCompraSPAnticipos = adocc.up_spFacturasAnticipos(idOCC);
+                    if (idCompraSPAnticipos[0] != -1)
+                    {
+                        adspa.llenaGrid(dgvSPAnticiposOCS, idCompraSPAnticipos);
+                    }
+                    else
+                    {
+                        dgvSPAnticiposOCS.Columns.Clear();
+                        lblNoDataSPAnticipos.Visible = true;
+                    }
+
+                    // de aquí tengo que cargar los pagos de los anticipos.
+                    adpa.llenaGrid(dgvPagosAnticiposOCS, idFactCompraAnticipos);
+
+                }
+                else
+                {
+                    // No encontró ninguna factura de anticipo asociada al conjunto de OCS.
+                    dgvAnticiposOCS.Columns.Clear();
+                    lblNoDataAnticipos.Visible = true;
+                    dgvSPAnticiposOCS.Columns.Clear();
+                    lblNoDataSPAnticipos.Visible = true;
+                    dgvPagosAnticiposOCS.Columns.Clear();
+                    lblNoDataPagoAnticipos.Visible = true;
+                }
+            }
+
+            // Búsqueda de facturas normales.
+            if (adocc.validaNombreIG(idOCC))
+            {
+                // Voy a buscar facturas normales, con sus SP y sus pagos desde una orden de compra consolidada, en caso de que la tuviese:
+                adfn.llenaGrid2(dgvFacturasNormales, adocc.up_idArticulo(idOCC));
+                if (dgvFacturasNormales.RowCount < 1)
+                {
+                    // No hay nada que mostrar
+                    dgvFacturasNormales.Columns.Clear();
+                    lblNoDataFacturasNormal.Visible = true;
+                    dgvSPFacturaNormal.Columns.Clear();
+                    lblNoDataSPNormal.Visible = true;
+                    dgvPagosFacturaNormal.Columns.Clear();
+                    lblNoDataPagosNormal.Visible = true;
+                }
+                else
+                {
+                    // Aqui hay que cargar los SP y los pagos asociados a esas facturas en caso de que existan.
+                    int[] idCompraSPFN = new int[100];
+                    idCompraSPFN = adocc.up_spFacturasNormales(adocc.up_idArticulo(idOCC));
+                    if (idCompraSPFN[0] != -1)
+                        adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
+                    else
+                    {
+                        // No hay ningún SP asociado a este idArticulo.
+                        dgvSPFacturaNormal.Columns.Clear();
+                        lblNoDataSPNormal.Visible = true;
+                    }
+                    // Aquí va la carga de los pagos de facturas normales proveedores.
+                    int[] idCompraFN = new int[100];
+                    for (int i = 0; i < 100; i++)
+                        idCompraFN[i] = 0;
+                    for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
+                        idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString()); // Acá me tira error.. seguramente no estoy recuperando la data correctamente.
+                    adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
+                    if (dgvPagosFacturaNormal.RowCount < 1)
+                    {
+                        // Ningún pago que mostrar.
+                        dgvPagosFacturaNormal.Columns.Clear();
+                        lblNoDataPagosNormal.Visible = true;
+                    }
+                }
+            }
+        }
+
+        private void occ_PC()
+        {
+            // Llena el dgvPC de un conjunto de OCS que dieron origen a una OCC.
+            // Se asume que cuando se llama a este método los datos ya se han cargado en dgvOCC y dgvOCS
+            // Buscar si tengo PC de esas OCS.
+            // mandar un for para rescatar las asociaciones desde el dgv columna "pcOrigen".. es mas facil.
+            int[] idPlanC = new int[100];
+            int posVector = 0;
+            int idPC = 0;
+            for (int i = 0; i < 100; i++)
+                idPlanC[i] = 0;
+            idPlanC[0] = -1; // Si solo tengo un OCS y este no tiene PC esto va a hacer que me devuelva el array con el error.
+            for (int i = 0; i < dgvOCS.RowCount; i++)
+            {
+                try
+                {
+                    idPC = Int32.Parse(dgvOCS.Rows[i].Cells["pcOrigen"].Value.ToString());
+                }
+                catch
+                {
+                    idPC = -1;
+                }
+                if (idPC != -1)
+                {
+                    idPlanC[posVector++] = idPC;
+                }
+            }
+            if (idPlanC[0] != -1)
+            {
+                adpc.llenaGrid(dgvPC, idPlanC);
+            }
+            else
+            {
+                // No hay planes de compra asociados.
+                dgvPC.Columns.Clear();
+                lblNoDataPC.Visible = true;
+            }
+        }
+
         private void rbOCC_CheckedChanged(object sender, EventArgs e)
         {
             int error = 0, idPC = 0, idOCC = 0, idPP=0, idIBG=0;
-            // int PPcargado=0, idRegistro=0 ;
             if (rbOCC.Checked)
             {
                 resaltaRb(rbOCC);
@@ -826,182 +798,31 @@ namespace Barco
                         // Por ende tampoco voy a poder llegar a ningún PC
                         dgvPC.Columns.Clear();
                         lblNoDataPC.Visible = true;
+                        // Ni tampoco voy a poder rescatar ningún dato para los grids 4,5,6,7,8,9
+                        dgvAnticiposOCS.Columns.Clear();
+                        lblNoDataAnticipos.Visible = true;
+                        dgvSPAnticiposOCS.Columns.Clear();
+                        lblNoDataSPAnticipos.Visible = true;
+                        dgvPagosAnticiposOCS.Columns.Clear();
+                        lblNoDataPagoAnticipos.Visible = true;
+                        dgvFacturasNormales.Columns.Clear();
+                        lblNoDataFacturasNormal.Visible = true;
+                        dgvSPFacturaNormal.Columns.Clear();
+                        lblNoDataSPNormal.Visible = true;
+                        dgvPagosFacturaNormal.Columns.Clear();
+                        lblNoDataPagosNormal.Visible = true;
                     }
                     else
                     {
                         // Mostrar las OCS desde OCC. Osea que no se tomarán en cuenta las OCS que se encuentran en estado: "Por Absorber"
                         adocs.llenaGridDesdeOCC(dgvOCS, idCompraOCS,idOCC);
-                        // Buscar si tengo PC de esas OCS.
-                        // mandar un for para rescatar las asociaciones desde el dgv columna "pcOrigen".. es mas facil.
-                        int [] idPlanC = new int [100];
-                        int posVector=0;
-                        idPC=0;
-                        for (int i = 0; i < 100; i++)
-                            idPlanC[i] = 0;
-                        idPlanC[0] = -1; // Si solo tengo un OCS y este no tiene PC esto va a hacer que me devuelva el array con el error.
-                        for (int i = 0; i < dgvOCS.RowCount; i++)
-                        {
-                            try
-                            {
-                                idPC=Int32.Parse(dgvOCS.Rows[i].Cells["pcOrigen"].Value.ToString());
-                            }
-                            catch
-                            {
-                                idPC=-1;
-                            }
-                            if (idPC!=-1)
-                            {
-                                idPlanC[posVector++]=idPC;
-                            }
-                        }
-                        if (idPlanC[0]!=-1)
-                        {
-                            adpc.llenaGrid(dgvPC, idPlanC);
-                        }
-                        else
-                        {
-                            // No hay planes de compra asociados.
-                            dgvPC.Columns.Clear();
-                            lblNoDataPC.Visible = true;
-                        }
+                        // Buscar y cargar los PC de las OCS que dieron origen a esta OCC
+                        occ_PC();
+                        
                     }
                     // Inicia enlace hacia arriba.
-                    // Busqueda de anticipos desde OCS.
-                    if (dgvOCS.RowCount > 0)
-                    {
-                        // Hay data de OCS
-                        if (dgvOCS.RowCount == 1)
-                        {
-                            // Solo hay una OCS.
-                            // para que una ocs pida un anticipo no es necesario que tenga un nombre válido.
-                            int[] idComprasAnticipos = new int[100];
-                            idComprasAnticipos = adocs.up_FacturasAnticipos(idCompraOCS[0]); // Aquí no me devuelve lo que debería.
-                            if (idComprasAnticipos[0] != -1)
-                            {
-                                // Si tengo facturas de anticipos asociadas a este OCS
-                                lblNoDataAnticipos.Visible = false;
-                                adaocs.llenaGrid(dgvAnticiposOCS, idComprasAnticipos);
-                                // Cargar las SP de anticipos desde OCS
-                                if (adaocs.up_SP(idComprasAnticipos[0]) != -1)
-                                {
-                                    // OJO: Le cargo solo la primera posición porque esta auditoria es desde PC y esta solo tiene asociado un OCS, 
-                                    // por ende esta OCS tiene asociadas dos facturas, y estas estan cargadas a un solo SP. No tengo mas
-                                    // casos de uso.
-                                    adspa.llenaGrid(dgvSPAnticiposOCS, adaocs.up_SP(idComprasAnticipos[0]));
-                                }
-                                else
-                                {
-                                    // no hay SP de anticipos generados desde OCS.
-                                    dgvSPAnticiposOCS.Columns.Clear();
-                                    lblNoDataSPAnticipos.Visible = true;
-                                }
 
-                                // Cargar Pagos de anticipos.
-                                adpa.llenaGrid(dgvPagosAnticiposOCS, idComprasAnticipos); // Cargo y verifico de golpe.
-                                if (dgvPagosAnticiposOCS.RowCount == 0)
-                                {
-                                    // No hay ni un solo pago de anticipo.
-                                    dgvPagosAnticiposOCS.Columns.Clear();
-                                    lblNoDataPagoAnticipos.Visible = true;
-                                }
-                            }
-                            else
-                            {
-                                // No tengo ninguna factura de anticipos desde OCS, por tanto no hay sp de anticipos ni pagos de anticipos
-                                dgvAnticiposOCS.Columns.Clear();
-                                lblNoDataAnticipos.Visible = true;
-                                dgvSPAnticiposOCS.Columns.Clear();
-                                lblNoDataSPAnticipos.Visible = true;
-                                dgvPagosAnticiposOCS.Columns.Clear();
-                                lblNoDataPagoAnticipos.Visible = true;
-                            }
-                        }
-                        if (dgvOCS.RowCount > 1)
-                        {
-                            // Tengo un conjunto de OCS.. Aquí me toca recorrer el dgvOCS para ver si alguna de estas tiene generado anticipos desde el carro.
-                            // Recorrer el dgvOCS para obtener un array que tenga el nombre de las OCS cuyo campo pedido no se encuentre en blanco.
-                            int[] idCompraOCSArray = new int[100]; // Aquí voy a almacenar todos los idcompraOCS que se estén mostrando en el dgvOCS
-                            for (int i = 0; i < dgvOCS.RowCount; i++)
-                            {
-                                idCompraOCSArray[i] = Int32.Parse(dgvOCS.Rows[i].Cells[0].Value.ToString());
-                            }
-                            int[] idFactCompraAnticipos = new int[100];
-                            idFactCompraAnticipos = adocs.up_FacturasAnticipos(idCompraOCSArray);
-                            if (idFactCompraAnticipos[0] != -1)
-                            {
-                                adaocs.llenaGrid(dgvAnticiposOCS, idFactCompraAnticipos);
-                                // de aquí tengo que cargar las SP de los anticipos.
-                                int[] idCompraSPAnticipos = new int[100]; // En este vector se almacenarán todos los SP asociados a las OCS.
-                                idCompraSPAnticipos = adocc.up_spFacturasAnticipos(idOCC);
-                                if (idCompraSPAnticipos[0] != -1)
-                                {
-                                    adspa.llenaGrid(dgvSPAnticiposOCS, idCompraSPAnticipos);
-                                }
-                                else
-                                {
-                                    dgvSPAnticiposOCS.Columns.Clear();
-                                    lblNoDataSPAnticipos.Visible = true;
-                                }
-
-                                // de aquí tengo que cargar los pagos de los anticipos.
-                                adpa.llenaGrid(dgvPagosAnticiposOCS, idFactCompraAnticipos);
-
-                            }
-                            else
-                            {
-                                // No encontró ninguna factura de anticipo asociada al conjunto de OCS.
-                                dgvAnticiposOCS.Columns.Clear();
-                                lblNoDataAnticipos.Visible = true;
-                                dgvSPAnticiposOCS.Columns.Clear();
-                                lblNoDataSPAnticipos.Visible = true;
-                                dgvPagosAnticiposOCS.Columns.Clear();
-                                lblNoDataPagoAnticipos.Visible = true;
-                            }
-                        }
-                    }
-                    // Búsqueda de facturas normales.
-                    if (adocc.validaNombreIG(idOCC))
-                    {
-                        // Voy a buscar facturas normales, con sus SP y sus pagos desde una orden de compra consolidada, en caso de que la tuviese:
-                        adfn.llenaGrid2(dgvFacturasNormales, adocc.up_idArticulo(idOCC));
-                        if (dgvFacturasNormales.RowCount < 1)
-                        {
-                            // No hay nada que mostrar
-                            dgvFacturasNormales.Columns.Clear();
-                            lblNoDataFacturasNormal.Visible = true;
-                            dgvSPFacturaNormal.Columns.Clear();
-                            lblNoDataSPNormal.Visible = true;
-                            dgvPagosFacturaNormal.Columns.Clear();
-                            lblNoDataPagosNormal.Visible = true;
-                        }
-                        else
-                        {
-                            // Aqui hay que cargar los SP y los pagos asociados a esas facturas en caso de que existan.
-                            int[] idCompraSPFN = new int[100];
-                            idCompraSPFN = adocc.up_spFacturasNormales(adocc.up_idArticulo(idOCC));
-                            if (idCompraSPFN[0] != -1)
-                                adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
-                            else
-                            {
-                                // No hay ningún SP asociado a este idArticulo.
-                                dgvSPFacturaNormal.Columns.Clear();
-                                lblNoDataSPNormal.Visible = true;
-                            }
-                            // Aquí va la carga de los pagos de facturas normales proveedores.
-                            int[] idCompraFN = new int[100];
-                            for (int i = 0; i < 100; i++)
-                                idCompraFN[i] = 0;
-                            for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
-                                idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString()); // Acá me tira error.. seguramente no estoy recuperando la data correctamente.
-                            adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
-                            if (dgvPagosFacturaNormal.RowCount < 1)
-                            {
-                                // Ningún pago que mostrar.
-                                dgvPagosFacturaNormal.Columns.Clear();
-                                lblNoDataPagosNormal.Visible = true;
-                            }
-                        }
-                    }
+                    occ_anticiposyFacturas(idOCC);
                     // Búsqueda de Pedido proveedor.
                     idPP = 0;
                     idPP = adocc.up_PP(Int32.Parse(dgvOCC.Rows[0].Cells[0].Value.ToString()));
@@ -1087,16 +908,98 @@ namespace Barco
 
         private void rbPP_CheckedChanged(object sender, EventArgs e)
         {
+            int idIBG, idPP, idOCC, idOCS, idPC, error;
+            idIBG=idPP=idOCC=idOCS=idPC=error=0;
+            resaltaRb(rbPP);
             if (rbPP.Checked)
             {
-                resaltaRb(rbPP);
                 flagRadioSeleccionado = 10;
+                try
+                {
+                    idPP = Int32.Parse(dgvPP.SelectedRows[0].Cells[0].Value.ToString());
+                }
+                catch (Exception)
+                {
+                    error = 1;
+                }
+                if (error == 1)
+                    handlerLblNoData(1); // no hay nada seleccionado ni que mostrar. - Muestro todos los dgv en blanco sin datos.
+                else
+                {
+                    adpp.llenaGrid(dgvPP, idPP);
+                    // Enlace hacia arriba:
+                    idIBG = adpp.up_IBG(idPP);
+                    if (idIBG > 0)
+                    {
+                        adibg.llenaGrid(dgvIBG, idIBG);
+                    }
+                    else
+                    {
+                        // No hay IBG
+                        dgvIBG.Columns.Clear();
+                        lblNoDataIBG.Visible = true;
+                    }
+                    // Enlace hacia abajo.
+                    idOCC=adpp.down_OCC(idPP);
+                    if (idOCC > 0)
+                    {
+                        adocc.llenaGrid(dgvOCC, idOCC);
+                        // Buscar OCS de esa OCC
+                        adocs.llenaGrid(dgvOCS, adocc.down_OCS(idOCC));
+                        // Anticipos y facturas desde OCC
+                        occ_anticiposyFacturas(idOCC);
+                        // Cargar PC de el conjunto de OCS.
+                        occ_PC();
+                    }
+                    else
+                    {
+                        #region "Tiene PP pero no encuentra OCC"
+                        dgvOCC.Columns.Clear();
+                        lblNoDataOCC.Visible = true;
+                        // De aquí para abajo intento buscar la OCS(1).
+                        // No hay OCC. Toca buscar una OCS que haya dado origen al IBG.
+                        dgvOCC.Columns.Clear();
+                        lblNoDataOCC.Visible = true;
+                        idOCS = adibg.down_OCS(idIBG);
+                        if (idOCS > 0)
+                        {
+                            adocs.llenaGrid(dgvOCS, idOCS);
+                            // Reconstruir camino hacia PC desde OCS
+                            idPC = adocs.down_pc(idOCS);
+                            if (idPC > 0)
+                            {
+                                adpc.llenaGrid(dgvPC, idPC);
+                            }
+                            else
+                            {
+                                // No hay PC.
+                                dgvPC.Columns.Clear();
+                                lblNoDataPC.Visible = true;
+                            }
+                            // Independientemente si tiene o no PC de aquí hacia arriba se reconstruye el camino para los grids # 4,5,6,7,8,9
+                            #region "Reconstruye camino desde OCS hacia grids # 4,5,6,7,8,9"
+                            ocs_anticiposyFacturas(idOCS);
+                            #endregion
+                        }
+                        else
+                        {
+                            dgvOCS.Columns.Clear();
+                            lblNoDataOCS.Visible = true;
+                            // Por ende tampoco habría enlace hacia el PC
+                            dgvPC.Columns.Clear();
+                            lblNoDataPC.Visible = true;
+                        }
+                        #endregion
+                    }
+                }
             }
+                
+            
         }
 
         private void rbIBG_CheckedChanged(object sender, EventArgs e)
         {
-            int idIBG=0, error=0;
+            int idIBG=0, error=0, idPP,idOCC,idOCS,idPC;
             if (rbIBG.Checked)
             {
                 resaltaRb(rbIBG);
@@ -1115,6 +1018,449 @@ namespace Barco
                 else
                 {
                     adibg.llenaGrid(dgvIBG, idIBG); // Cargar solo el IBG seleccionado.
+                    // Buscar PP
+                    idPP=adibg.down_PP(idIBG);
+                    if (idPP != -1)
+                    {
+                        // Existe al menos un PP asociado a este IBG
+                        adpp.llenaGrid(dgvPP, idPP);
+                        // Voy a Buscar la (1) orden de compra consolidada.
+                        idOCC = adpp.down_OCC(idPP);
+                        if (idOCC>0)
+                        {
+                            // Buscar el conjunto de OCS que dieron origen al OCC:
+                            #region "Tiene PP y encuentra OCC"
+                            adocc.llenaGrid(dgvOCC, idOCC);
+                            // De aquí puedo seguir hacia abajo con OCS y PC y Facturas y demás cosas.
+                            // Inicia enlace hacia abajo
+                            // Busco de que OCS proviene esta OCC.
+                            int[] idCompraOCS = new int[100];
+                            idCompraOCS = adocc.down_OCS(idOCC);
+                            if (idCompraOCS[0] == -1)
+                            {
+                                // NO hay ninguna OCS asociada a este OCC
+                                dgvOCS.Columns.Clear();
+                                lblNoDataOCS.Visible = true;
+                                // Por ende tampoco voy a poder llegar a ningún PC
+                                dgvPC.Columns.Clear();
+                                lblNoDataPC.Visible = true;
+                            }
+                            else
+                            {
+                                // Mostrar las OCS desde OCC. Osea que no se tomarán en cuenta las OCS que se encuentran en estado: "Por Absorber"
+                                adocs.llenaGridDesdeOCC(dgvOCS, idCompraOCS, idOCC);
+                                // Buscar si tengo PC de esas OCS.
+                                occ_PC();
+                            }
+                            // Inicia enlace hacia arriba.
+                            // Busqueda de anticipos desde OCS.
+                            if (dgvOCS.RowCount > 0)
+                            {
+                                // Hay data de OCS
+                                if (dgvOCS.RowCount == 1)
+                                {
+                                    // Solo hay una OCS.
+                                    // para que una ocs pida un anticipo no es necesario que tenga un nombre válido.
+                                    int[] idComprasAnticipos = new int[100];
+                                    idComprasAnticipos = adocs.up_FacturasAnticipos(idCompraOCS[0]); // Aquí no me devuelve lo que debería.
+                                    if (idComprasAnticipos[0] != -1)
+                                    {
+                                        // Si tengo facturas de anticipos asociadas a este OCS
+                                        lblNoDataAnticipos.Visible = false;
+                                        adaocs.llenaGrid(dgvAnticiposOCS, idComprasAnticipos);
+                                        // Cargar las SP de anticipos desde OCS
+                                        if (adaocs.up_SP(idComprasAnticipos[0]) != -1)
+                                        {
+                                            // OJO: Le cargo solo la primera posición porque esta auditoria es desde PC y esta solo tiene asociado un OCS, 
+                                            // por ende esta OCS tiene asociadas dos facturas, y estas estan cargadas a un solo SP. No tengo mas
+                                            // casos de uso.
+                                            adspa.llenaGrid(dgvSPAnticiposOCS, adaocs.up_SP(idComprasAnticipos[0]));
+                                        }
+                                        else
+                                        {
+                                            // no hay SP de anticipos generados desde OCS.
+                                            dgvSPAnticiposOCS.Columns.Clear();
+                                            lblNoDataSPAnticipos.Visible = true;
+                                        }
+
+                                        // Cargar Pagos de anticipos.
+                                        adpa.llenaGrid(dgvPagosAnticiposOCS, idComprasAnticipos); // Cargo y verifico de golpe.
+                                        if (dgvPagosAnticiposOCS.RowCount == 0)
+                                        {
+                                            // No hay ni un solo pago de anticipo.
+                                            dgvPagosAnticiposOCS.Columns.Clear();
+                                            lblNoDataPagoAnticipos.Visible = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // No tengo ninguna factura de anticipos desde OCS, por tanto no hay sp de anticipos ni pagos de anticipos
+                                        dgvAnticiposOCS.Columns.Clear();
+                                        lblNoDataAnticipos.Visible = true;
+                                        dgvSPAnticiposOCS.Columns.Clear();
+                                        lblNoDataSPAnticipos.Visible = true;
+                                        dgvPagosAnticiposOCS.Columns.Clear();
+                                        lblNoDataPagoAnticipos.Visible = true;
+                                    }
+                                }
+                                if (dgvOCS.RowCount > 1)
+                                {
+                                    // Tengo un conjunto de OCS.. Aquí me toca recorrer el dgvOCS para ver si alguna de estas tiene generado anticipos desde el carro.
+                                    // Recorrer el dgvOCS para obtener un array que tenga el nombre de las OCS cuyo campo pedido no se encuentre en blanco.
+                                    int[] idCompraOCSArray = new int[100]; // Aquí voy a almacenar todos los idcompraOCS que se estén mostrando en el dgvOCS
+                                    for (int i = 0; i < dgvOCS.RowCount; i++)
+                                    {
+                                        idCompraOCSArray[i] = Int32.Parse(dgvOCS.Rows[i].Cells[0].Value.ToString());
+                                    }
+                                    int[] idFactCompraAnticipos = new int[100];
+                                    idFactCompraAnticipos = adocs.up_FacturasAnticipos(idCompraOCSArray);
+                                    if (idFactCompraAnticipos[0] != -1)
+                                    {
+                                        adaocs.llenaGrid(dgvAnticiposOCS, idFactCompraAnticipos);
+                                        // de aquí tengo que cargar las SP de los anticipos.
+                                        int[] idCompraSPAnticipos = new int[100]; // En este vector se almacenarán todos los SP asociados a las OCS.
+                                        idCompraSPAnticipos = adocc.up_spFacturasAnticipos(idOCC);
+                                        if (idCompraSPAnticipos[0] != -1)
+                                        {
+                                            adspa.llenaGrid(dgvSPAnticiposOCS, idCompraSPAnticipos);
+                                        }
+                                        else
+                                        {
+                                            dgvSPAnticiposOCS.Columns.Clear();
+                                            lblNoDataSPAnticipos.Visible = true;
+                                        }
+
+                                        // de aquí tengo que cargar los pagos de los anticipos.
+                                        adpa.llenaGrid(dgvPagosAnticiposOCS, idFactCompraAnticipos);
+
+                                    }
+                                    else
+                                    {
+                                        // No encontró ninguna factura de anticipo asociada al conjunto de OCS.
+                                        dgvAnticiposOCS.Columns.Clear();
+                                        lblNoDataAnticipos.Visible = true;
+                                        dgvSPAnticiposOCS.Columns.Clear();
+                                        lblNoDataSPAnticipos.Visible = true;
+                                        dgvPagosAnticiposOCS.Columns.Clear();
+                                        lblNoDataPagoAnticipos.Visible = true;
+                                    }
+                                }
+                            }
+                            // Búsqueda de facturas normales.
+                            if (adocc.validaNombreIG(idOCC))
+                            {
+                                // Voy a buscar facturas normales, con sus SP y sus pagos desde una orden de compra consolidada, en caso de que la tuviese:
+                                adfn.llenaGrid2(dgvFacturasNormales, adocc.up_idArticulo(idOCC));
+                                if (dgvFacturasNormales.RowCount < 1)
+                                {
+                                    // No hay nada que mostrar
+                                    dgvFacturasNormales.Columns.Clear();
+                                    lblNoDataFacturasNormal.Visible = true;
+                                    dgvSPFacturaNormal.Columns.Clear();
+                                    lblNoDataSPNormal.Visible = true;
+                                    dgvPagosFacturaNormal.Columns.Clear();
+                                    lblNoDataPagosNormal.Visible = true;
+                                }
+                                else
+                                {
+                                    // Aqui hay que cargar los SP y los pagos asociados a esas facturas en caso de que existan.
+                                    int[] idCompraSPFN = new int[100];
+                                    idCompraSPFN = adocc.up_spFacturasNormales(adocc.up_idArticulo(idOCC));
+                                    if (idCompraSPFN[0] != -1)
+                                        adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
+                                    else
+                                    {
+                                        // No hay ningún SP asociado a este idArticulo.
+                                        dgvSPFacturaNormal.Columns.Clear();
+                                        lblNoDataSPNormal.Visible = true;
+                                    }
+                                    // Aquí va la carga de los pagos de facturas normales proveedores.
+                                    int[] idCompraFN = new int[100];
+                                    for (int i = 0; i < 100; i++)
+                                        idCompraFN[i] = 0;
+                                    for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
+                                        idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString()); // Acá me tira error.. seguramente no estoy recuperando la data correctamente.
+                                    adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
+                                    if (dgvPagosFacturaNormal.RowCount < 1)
+                                    {
+                                        // Ningún pago que mostrar.
+                                        dgvPagosFacturaNormal.Columns.Clear();
+                                        lblNoDataPagosNormal.Visible = true;
+                                    }
+                                }
+                            }
+                            #endregion
+                        }
+                        else
+                        {
+                            #region "Tiene PP pero no encuentra OCC"
+                            dgvOCC.Columns.Clear();
+                            lblNoDataOCC.Visible = true;
+                            // De aquí para abajo intento buscar OCS.
+                            // No hay OCC. Toca buscar una OCS que haya dado origen al IBG.
+                            dgvOCC.Columns.Clear();
+                            lblNoDataOCC.Visible = true;
+                            idOCS = adibg.down_OCS(idIBG);
+                            if (idOCS > 0)
+                            {
+                                adocs.llenaGrid(dgvOCS, idOCS);
+                                // Reconstruir camino hacia PC desde OCS
+                                idPC = adocs.down_pc(idOCS);
+                                if (idPC > 0)
+                                {
+                                    adpc.llenaGrid(dgvPC, idPC);
+                                }
+                                else
+                                {
+                                    // No hay PC.
+                                    dgvPC.Columns.Clear();
+                                    lblNoDataPC.Visible = true;
+                                }
+                                // Independientemente si tiene o no PC de aquí hacia arriba se reconstruye el camino para los grids # 4,5,6,7,8,9
+                                #region "Reconstruye camino desde OCS hacia grids # 4,5,6,7,8,9"
+                                ocs_anticiposyFacturas(idOCS);
+                                #endregion
+                            }
+                            else
+                            {
+                                dgvOCS.Columns.Clear();
+                                lblNoDataOCS.Visible = true;
+                                // Por ende tampoco habría enlace hacia el PC
+                                dgvPC.Columns.Clear();
+                                lblNoDataPC.Visible = true;
+                            }
+                            #endregion
+                        }
+                    }
+                    else 
+                    {
+                        // No hay ni un solo PP.
+                        dgvPP.Columns.Clear();
+                        lblNoDataPP.Visible = true;
+                        // Es posible que en el campo compra.comprobante del IBG exista una IG y esta exista como OC pero no como PP.. con esto puedo rastrear anticipos y pagos
+                        idOCC = adibg.down_OCC(idIBG);
+                        if (idOCC > 0)
+                        {
+                            #region "No tiene PP pero encuentra OCC"
+                            adocc.llenaGrid(dgvOCC, idOCC);
+                            // De aquí puedo seguir hacia abajo con OCS y PC y Facturas y demás cosas.
+                            // Inicia enlace hacia abajo
+                            // Busco de que OCS proviene esta OCC.
+                            int[] idCompraOCS = new int[100];
+                            idCompraOCS = adocc.down_OCS(idOCC);
+                            if (idCompraOCS[0] == -1)
+                            {
+                                // NO hay ninguna OCS asociada a este OCC
+                                dgvOCS.Columns.Clear();
+                                lblNoDataOCS.Visible = true;
+                                // Por ende tampoco voy a poder llegar a ningún PC
+                                dgvPC.Columns.Clear();
+                                lblNoDataPC.Visible = true;
+                            }
+                            else
+                            {
+                                // Mostrar las OCS desde OCC. Osea que no se tomarán en cuenta las OCS que se encuentran en estado: "Por Absorber"
+                                adocs.llenaGridDesdeOCC(dgvOCS, idCompraOCS, idOCC);
+                                // Buscar si tengo PC de esas OCS.
+                                // mandar un for para rescatar las asociaciones desde el dgv columna "pcOrigen".. es mas facil.
+                                int[] idPlanC = new int[100];
+                                int posVector = 0;
+                                idPC = 0;
+                                for (int i = 0; i < 100; i++)
+                                    idPlanC[i] = 0;
+                                idPlanC[0] = -1; // Si solo tengo un OCS y este no tiene PC esto va a hacer que me devuelva el array con el error.
+                                for (int i = 0; i < dgvOCS.RowCount; i++)
+                                {
+                                    try
+                                    {
+                                        idPC = Int32.Parse(dgvOCS.Rows[i].Cells["pcOrigen"].Value.ToString());
+                                    }
+                                    catch
+                                    {
+                                        idPC = -1;
+                                    }
+                                    if (idPC != -1)
+                                    {
+                                        idPlanC[posVector++] = idPC;
+                                    }
+                                }
+                                if (idPlanC[0] != -1)
+                                {
+                                    adpc.llenaGrid(dgvPC, idPlanC);
+                                }
+                                else
+                                {
+                                    // No hay planes de compra asociados.
+                                    dgvPC.Columns.Clear();
+                                    lblNoDataPC.Visible = true;
+                                }
+                            
+                            }
+                            // Inicia enlace hacia arriba.
+                            // Busqueda de anticipos desde OCS.
+                            if (dgvOCS.RowCount > 0)
+                            {
+                                // Hay data de OCS
+                                if (dgvOCS.RowCount == 1)
+                                {
+                                    // Solo hay una OCS.
+                                    // para que una ocs pida un anticipo no es necesario que tenga un nombre válido.
+                                    int[] idComprasAnticipos = new int[100];
+                                    idComprasAnticipos = adocs.up_FacturasAnticipos(idCompraOCS[0]); // Aquí no me devuelve lo que debería.
+                                    if (idComprasAnticipos[0] != -1)
+                                    {
+                                        // Si tengo facturas de anticipos asociadas a este OCS
+                                        lblNoDataAnticipos.Visible = false;
+                                        adaocs.llenaGrid(dgvAnticiposOCS, idComprasAnticipos);
+                                        // Cargar las SP de anticipos desde OCS
+                                        if (adaocs.up_SP(idComprasAnticipos[0]) != -1)
+                                        {
+                                            // OJO: Le cargo solo la primera posición porque esta auditoria es desde PC y esta solo tiene asociado un OCS, 
+                                            // por ende esta OCS tiene asociadas dos facturas, y estas estan cargadas a un solo SP. No tengo mas
+                                            // casos de uso.
+                                            adspa.llenaGrid(dgvSPAnticiposOCS, adaocs.up_SP(idComprasAnticipos[0]));
+                                        }
+                                        else
+                                        {
+                                            // no hay SP de anticipos generados desde OCS.
+                                            dgvSPAnticiposOCS.Columns.Clear();
+                                            lblNoDataSPAnticipos.Visible = true;
+                                        }
+
+                                        // Cargar Pagos de anticipos.
+                                        adpa.llenaGrid(dgvPagosAnticiposOCS, idComprasAnticipos); // Cargo y verifico de golpe.
+                                        if (dgvPagosAnticiposOCS.RowCount == 0)
+                                        {
+                                            // No hay ni un solo pago de anticipo.
+                                            dgvPagosAnticiposOCS.Columns.Clear();
+                                            lblNoDataPagoAnticipos.Visible = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // No tengo ninguna factura de anticipos desde OCS, por tanto no hay sp de anticipos ni pagos de anticipos
+                                        dgvAnticiposOCS.Columns.Clear();
+                                        lblNoDataAnticipos.Visible = true;
+                                        dgvSPAnticiposOCS.Columns.Clear();
+                                        lblNoDataSPAnticipos.Visible = true;
+                                        dgvPagosAnticiposOCS.Columns.Clear();
+                                        lblNoDataPagoAnticipos.Visible = true;
+                                    }
+                                }
+                                if (dgvOCS.RowCount > 1)
+                                {
+                                    // Tengo un conjunto de OCS.. Aquí me toca recorrer el dgvOCS para ver si alguna de estas tiene generado anticipos desde el carro.
+                                    // Recorrer el dgvOCS para obtener un array que tenga el nombre de las OCS cuyo campo pedido no se encuentre en blanco.
+                                    int[] idCompraOCSArray = new int[100]; // Aquí voy a almacenar todos los idcompraOCS que se estén mostrando en el dgvOCS
+                                    for (int i = 0; i < dgvOCS.RowCount; i++)
+                                    {
+                                        idCompraOCSArray[i] = Int32.Parse(dgvOCS.Rows[i].Cells[0].Value.ToString());
+                                    }
+                                    int[] idFactCompraAnticipos = new int[100];
+                                    idFactCompraAnticipos = adocs.up_FacturasAnticipos(idCompraOCSArray);
+                                    if (idFactCompraAnticipos[0] != -1)
+                                    {
+                                        adaocs.llenaGrid(dgvAnticiposOCS, idFactCompraAnticipos);
+                                        // de aquí tengo que cargar las SP de los anticipos.
+                                        int[] idCompraSPAnticipos = new int[100]; // En este vector se almacenarán todos los SP asociados a las OCS.
+                                        idCompraSPAnticipos = adocc.up_spFacturasAnticipos(idOCC);
+                                        if (idCompraSPAnticipos[0] != -1)
+                                        {
+                                            adspa.llenaGrid(dgvSPAnticiposOCS, idCompraSPAnticipos);
+                                        }
+                                        else
+                                        {
+                                            dgvSPAnticiposOCS.Columns.Clear();
+                                            lblNoDataSPAnticipos.Visible = true;
+                                        }
+
+                                        // de aquí tengo que cargar los pagos de los anticipos.
+                                        adpa.llenaGrid(dgvPagosAnticiposOCS, idFactCompraAnticipos);
+
+                                    }
+                                    else
+                                    {
+                                        // No encontró ninguna factura de anticipo asociada al conjunto de OCS.
+                                        dgvAnticiposOCS.Columns.Clear();
+                                        lblNoDataAnticipos.Visible = true;
+                                        dgvSPAnticiposOCS.Columns.Clear();
+                                        lblNoDataSPAnticipos.Visible = true;
+                                        dgvPagosAnticiposOCS.Columns.Clear();
+                                        lblNoDataPagoAnticipos.Visible = true;
+                                    }
+                                }
+                            }
+                            // Búsqueda de facturas normales.
+                            if (adocc.validaNombreIG(idOCC))
+                            {
+                                // Voy a buscar facturas normales, con sus SP y sus pagos desde una orden de compra consolidada, en caso de que la tuviese:
+                                adfn.llenaGrid2(dgvFacturasNormales, adocc.up_idArticulo(idOCC));
+                                if (dgvFacturasNormales.RowCount < 1)
+                                {
+                                    // No hay nada que mostrar
+                                    dgvFacturasNormales.Columns.Clear();
+                                    lblNoDataFacturasNormal.Visible = true;
+                                    dgvSPFacturaNormal.Columns.Clear();
+                                    lblNoDataSPNormal.Visible = true;
+                                    dgvPagosFacturaNormal.Columns.Clear();
+                                    lblNoDataPagosNormal.Visible = true;
+                                }
+                                else
+                                {
+                                    // Aqui hay que cargar los SP y los pagos asociados a esas facturas en caso de que existan.
+                                    int[] idCompraSPFN = new int[100];
+                                    idCompraSPFN = adocc.up_spFacturasNormales(adocc.up_idArticulo(idOCC));
+                                    if (idCompraSPFN[0] != -1)
+                                        adspfn.llenaGrid(dgvSPFacturaNormal, idCompraSPFN);
+                                    else
+                                    {
+                                        // No hay ningún SP asociado a este idArticulo.
+                                        dgvSPFacturaNormal.Columns.Clear();
+                                        lblNoDataSPNormal.Visible = true;
+                                    }
+                                    // Aquí va la carga de los pagos de facturas normales proveedores.
+                                    int[] idCompraFN = new int[100];
+                                    for (int i = 0; i < 100; i++)
+                                        idCompraFN[i] = 0;
+                                    for (int i = 0; i < dgvFacturasNormales.RowCount; i++)
+                                        idCompraFN[i] = Int32.Parse(dgvFacturasNormales.Rows[i].Cells["idCompra"].Value.ToString()); // Acá me tira error.. seguramente no estoy recuperando la data correctamente.
+                                    adpfn.llenaGrid(dgvPagosFacturaNormal, idCompraFN);
+                                    if (dgvPagosFacturaNormal.RowCount < 1)
+                                    {
+                                        // Ningún pago que mostrar.
+                                        dgvPagosFacturaNormal.Columns.Clear();
+                                        lblNoDataPagosNormal.Visible = true;
+                                    }
+                                }
+                            }
+                            #endregion
+                        }
+                        else
+                        {
+                            #region "No tiene PP ni encuentra OCC"
+                            // No hay OCC. Toca buscar una OCS que haya dado origen al IBG.
+                            dgvOCC.Columns.Clear();
+                            lblNoDataOCC.Visible = true;
+                            idOCS = adibg.down_OCS(idIBG);
+                            if (idOCS > 0)
+                            {
+                                adocs.llenaGrid(dgvOCS, idOCS);
+                                // Reconstruir camino hacia PC desde OCS
+                                idPC=adocs.down_pc(idOCS);
+                                if (idPC > 0)
+                                {
+                                    adpc.llenaGrid(dgvPC, idPC);
+                                }
+                                else
+                                {
+                                    // No hay PC.
+                                    dgvPC.Columns.Clear();
+                                    lblNoDataPC.Visible = true;
+                                }
+                            }
+                            #endregion
+                        }
+                    }
                 }
             }
             else
@@ -1465,7 +1811,6 @@ namespace Barco
             rbPP.Checked = false;
             rbIBG.Checked = false;
             flagRadioSeleccionado = 0;
-
             this.Cursor = Cursors.Default;
         }
 

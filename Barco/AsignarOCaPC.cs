@@ -33,32 +33,35 @@ namespace Barco
         {
             if (modo == 0) // OC Libres
                 sqlQuery = @"
-				    select compra.idcompra as 'idCompra', compra.Numero as 'Nro OC', compra.fechaIngreso as 'Fecha Emisión', compra.Fecha as 'Fecha' ,compra.FechaVencimiento as 'Fecha Vence', compra.Usuario as 'Usuario', 
+				    select compra.idcompra as 'idCompra', compra.Numero as 'Nro OC', Cliente.Nombre as 'Proveedor',compra.fechaIngreso as 'Fecha Emisión', compra.Fecha as 'Fecha' ,compra.FechaVencimiento as 'Fecha Vence', compra.Usuario as 'Usuario', 
 					    count(detcompra.idDetCompra) as 'Nro Items', compra.Total as 'Total'
 				    from Compra
 					    inner join DetCompra on compra.idCompra=detcompra.idCompra
+                        inner join cliente on compra.idcliente=cliente.idCliente
 				    where compra.idTipoFactura=2 and compra.Borrar=0 and compra.Numero not in (select numeroOc from registroPC where numeroOc is not null) and compra.Usuario<>'OrdenLotes'
-				    group by compra.Numero, compra.Fecha, compra.FechaVencimiento,compra.Usuario, compra.Total, compra.idCompra, compra.FechaIngreso
+				    group by compra.Numero, Cliente.Nombre, compra.Fecha, compra.FechaVencimiento,compra.Usuario, compra.Total, compra.idCompra, compra.FechaIngreso
 				    order by compra.idCompra asc
 			    ";
             if (modo == 1) // Asignadas
                 sqlQuery = @"
-				    select compra.idcompra as 'idCompra', compra.Numero as 'Nro OC', compra.fechaIngreso as 'Fecha Emisión', compra.Fecha as 'Fecha' ,compra.FechaVencimiento as 'Fecha Vence', compra.Usuario as 'Usuario', 
+				    select compra.idcompra as 'idCompra', compra.Numero as 'Nro OC', Cliente.Nombre as 'Proveedor',compra.fechaIngreso as 'Fecha Emisión', compra.Fecha as 'Fecha' ,compra.FechaVencimiento as 'Fecha Vence', compra.Usuario as 'Usuario', 
 					    count(detcompra.idDetCompra) as 'Nro Items', compra.Total as 'Total'
 				    from Compra
 					    inner join DetCompra on compra.idCompra=detcompra.idCompra
+                        inner join cliente on compra.idcliente=cliente.idCliente
 				    where compra.idTipoFactura=2 and compra.Borrar=0 and compra.Numero in (select numeroOc from registroPC where numeroOc is not null) and compra.Usuario<>'OrdenLotes'
-				    group by compra.Numero, compra.Fecha, compra.FechaVencimiento,compra.Usuario, compra.Total, compra.idCompra, compra.FechaIngreso
+				    group by compra.Numero, Cliente.Nombre, compra.Fecha, compra.FechaVencimiento,compra.Usuario, compra.Total, compra.idCompra, compra.FechaIngreso
 				    order by compra.idCompra asc
 			    ";
             if (modo == 2) // Todas
                 sqlQuery = @"
-				    select compra.idcompra as 'idCompra', compra.Numero as 'Nro OC', compra.fechaIngreso as 'Fecha Emisión', compra.Fecha as 'Fecha' ,compra.FechaVencimiento as 'Fecha Vence', compra.Usuario as 'Usuario', 
+				    select compra.idcompra as 'idCompra', compra.Numero as 'Nro OC', Cliente.Nombre as 'Proveedor',compra.fechaIngreso as 'Fecha Emisión', compra.Fecha as 'Fecha' ,compra.FechaVencimiento as 'Fecha Vence', compra.Usuario as 'Usuario', 
 					    count(detcompra.idDetCompra) as 'Nro Items', compra.Total as 'Total'
 				    from Compra
 					    inner join DetCompra on compra.idCompra=detcompra.idCompra
+                        inner join cliente on compra.idcliente=cliente.idCliente
 				    where compra.idTipoFactura=2 and compra.Borrar=0  and compra.Usuario<>'OrdenLotes'
-				    group by compra.Numero, compra.Fecha, compra.FechaVencimiento,compra.Usuario, compra.Total, compra.idCompra, compra.FechaIngreso
+				    group by compra.Numero, Cliente.Nombre, compra.Fecha, compra.FechaVencimiento,compra.Usuario, compra.Total, compra.idCompra, compra.FechaIngreso
 				    order by compra.idCompra asc
 			    ";
             miClase.LlenaGrid(dgvOrdenesCompra, "compra", sqlQuery);
@@ -90,13 +93,14 @@ namespace Barco
                     // Ordenes de Compra.
                     dgvOrdenesCompra.Columns[0].Visible = false; // idcompra va oculto
                     dgvOrdenesCompra.Columns[1].Width = 120; // Nro OC
-                    dgvOrdenesCompra.Columns[2].Width = 160; // Fecha Emisión
-                    dgvOrdenesCompra.Columns[3].Width = 160; // Fecha
-                    dgvOrdenesCompra.Columns[4].Width = 160; // Fecha Vence
-                    dgvOrdenesCompra.Columns[5].Width = 120; // Usuario
-                    dgvOrdenesCompra.Columns[6].Width = 100; // Nro Items
-                    dgvOrdenesCompra.Columns[7].Width = 120; // Total
-                    dgvOrdenesCompra.Columns[7].DefaultCellStyle.Format = "F";
+                    dgvOrdenesCompra.Columns[2].Width = 240; // Proveedor
+                    dgvOrdenesCompra.Columns[3].Width = 160; // Fecha Emisión
+                    dgvOrdenesCompra.Columns[4].Width = 160; // Fecha
+                    dgvOrdenesCompra.Columns[5].Width = 160; // Fecha Vence
+                    dgvOrdenesCompra.Columns[6].Width = 120; // Usuario
+                    dgvOrdenesCompra.Columns[7].Width = 100; // Nro Items
+                    dgvOrdenesCompra.Columns[8].Width = 120; // Total
+                    dgvOrdenesCompra.Columns[8].DefaultCellStyle.Format = "F";
 
                 } break;
             }

@@ -239,34 +239,7 @@ namespace Barco.CAD
             idComprasFacturasAnticipos[0] = -1; // No mismo.. no hay nada
             return idComprasFacturasAnticipos;
         }
-
-        public int[] up_FacturasAnticipos(string nroOCS)
-        {
-            // devuelve un array int que contiene los idcompra de las facturas que se generaron como anticipo de la OCS con el numero que recibe como parámetro
-            int[] idComprasFacturasAnticipos = new int[100];
-            for (int i = 0; i < 100; i++)
-                idComprasFacturasAnticipos[0] = 0;
-            sqlQuery = @"select count(idcompra) from compra where idtipofactura=4 and mensaje2='"+nroOCS+"' and borrar=0";
-            if (miClase.EjecutaEscalar(sqlQuery) < 1)
-            {
-                idComprasFacturasAnticipos[0] = -1;
-                return idComprasFacturasAnticipos;
-            }
-            DataSet ds = new DataSet();
-            SqlDataAdapter sqlda = new SqlDataAdapter();
-            sqlQuery = @"select idcompra from compra where idtipofactura=4 and mensaje2='" + nroOCS + "' and borrar=0";
-            sqlda.SelectCommand = new SqlCommand(sqlQuery, Datos.sqlConn);
-            sqlda.Fill(ds, "compra");
-            ds.Tables["compra"].Rows[0].ToString();
-            DataRow dr;
-            for (int i = 0; i < ds.Tables["compra"].Rows.Count; i++)
-            {
-                dr = ds.Tables["compra"].Rows[i];
-                idComprasFacturasAnticipos[i] = Int32.Parse(dr["idcompra"].ToString()); // no manejo excepción. de la integridad de los datos se encarga el sgbd
-            }
-            return idComprasFacturasAnticipos;
-        }
-
+        
         public int[] up_FacturasAnticipos(int[] idOCS) 
         {
             // Devuelve los idCompra de facturas de anticipos asociados al conjunto de idOCS que recibe.
@@ -1168,7 +1141,7 @@ namespace Barco.CAD
                         DateTime dt1 = DateTime.Now;
                         DateTime dt2 = DateTime.Parse(dgv["fechaIngresoOCS", i].Value.ToString());
                         TimeSpan tiempo = dt1.Subtract(dt2);
-                        if ((tiempo.Days) > 2)
+                        if ((tiempo.Days) >= 3)
                         {
                             dgv["diasAprobacionProforma", i].Style.BackColor = Color.Orange;
                         }
@@ -1201,14 +1174,14 @@ namespace Barco.CAD
                     {
                         // Hay data.
                         nroDias = Int32.Parse(dato);
-                        if (nroDias > 14)
+                        if (nroDias >= 15)
                         {
                             dgv["diasDesdeOCSaPP", i].Style.BackColor = Color.Red;
                             dgv["diasDesdeOCSaPP", i].Style.ForeColor = Color.White;
                         }
                         else
                         {
-                            if (nroDias >= 0 && nroDias < 15)
+                            if (nroDias >= 0 && nroDias <= 14)
                             {
                                 dgv["diasDesdeOCSaPP", i].Style.BackColor = Color.Green; // Dentro de Lo permitido
                                 dgv["diasDesdeOCSaPP", i].Style.ForeColor = Color.White;
@@ -1225,7 +1198,7 @@ namespace Barco.CAD
                         DateTime dt1 = DateTime.Now;
                         DateTime dt2 = DateTime.Parse(dgv["fechaIngresoOCS", i].Value.ToString());
                         TimeSpan tiempo = dt1.Subtract(dt2);
-                        if ((tiempo.Days) > 14)
+                        if ((tiempo.Days) >= 15)
                         {
                             dgv["diasDesdeOCSaPP", i].Style.BackColor = Color.Orange;
                         }

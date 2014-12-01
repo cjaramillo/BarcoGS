@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -9,6 +11,71 @@ namespace Barco.CAD.Clases
 {
     class AccesoDatosIBG : MostrarData
     {
+        public int down_PP(int idCompraIBG) 
+        {
+            /*
+             * Devuelve el idCompra del PP que dio origen al IBG que recibe. 
+             * Por lógica un PP debe dar origen a un solo IBG (inclusive existe una restricción a nivel del sgbd en el disparador PPaIBG de la tabla compra).
+             * 
+             * */
+
+            sqlQuery = @"SELECT count(idCompra) from Compra where idTipoFactura=14 and Numero in (select Comprobante from Compra where idtipofactura=9 and idCompra=" + idCompraIBG + ")";
+            if (miClase.EjecutaEscalar(sqlQuery) < 1)
+                return -1;
+            sqlQuery = @"SELECT idCompra from Compra where idTipoFactura=14 and Numero in (select Comprobante from Compra where idtipofactura=9 and idCompra=" + idCompraIBG + ")";
+            return miClase.EjecutaEscalar(sqlQuery);
+        }
+
+        public int down_OCC (int idCompraIBG) {
+            /*
+             * Es posible que en el campo compra.comprobante del IBG exista una IG y que esta exista como OCC pero no como PP.. con esto puedo rastrar anticipos y pagos
+             * */
+            sqlQuery = @"
+                select count(idcompra)
+                from compra
+                where idtipofactura=2 and usuario='OrdenLotes' and numero in (
+                    select comprobante from compra where idtipofactura=9 and len(comprobante)=11 and comprobante like 'IG-%' and idcompra=" + idCompraIBG+@"
+                )
+            ";
+            if (miClase.EjecutaEscalar(sqlQuery) < 1)
+                return -1;
+            sqlQuery = @"
+                select top(1) idcompra
+                from compra
+                where idtipofactura=2 and usuario='OrdenLotes' and numero in (
+                    select comprobante from compra where idtipofactura=9 and len(comprobante)=11 and comprobante like 'IG-%' and idcompra=" + idCompraIBG + @"
+                )
+                order by idcompra desc
+            ";
+            return miClase.EjecutaEscalar(sqlQuery);
+        }
+
+        public int down_OCS(int idCompraIBG)
+        {
+            /*
+             * Es posible que en el campo compra.comprobante del IBG exista una IG y que esta exista como OCS pero no como PP.. con esto puedo rastrar anticipos y pagos
+             * */
+            sqlQuery = @"
+                select count(idcompra)
+                from compra
+                where idtipofactura=2 and usuario<>'OrdenLotes' and numero in (
+                    select comprobante from compra where idtipofactura=9 and len(comprobante)=11 and comprobante like 'IG-%' and idcompra=" + idCompraIBG + @"
+                )
+            ";
+            if (miClase.EjecutaEscalar(sqlQuery) < 1)
+                return -1;
+            sqlQuery = @"
+                select top(1) idcompra
+                from compra
+                where idtipofactura=2 and usuario<>'OrdenLotes' and numero in (
+                    select comprobante from compra where idtipofactura=9 and len(comprobante)=11 and comprobante like 'IG-%' and idcompra=" + idCompraIBG + @"
+                )
+                order by idcompra desc
+            ";
+            return miClase.EjecutaEscalar(sqlQuery);
+        }
+
+        
         public override int llenaGrid(System.Windows.Forms.DataGridView dgv)
         {
             dgv.Columns.Clear();
@@ -28,7 +95,7 @@ namespace Barco.CAD.Clases
                         from Compra 
                         where compra.idTipoFactura=14 and compra.borrar=0
 	                ) PP on compra.Comprobante=PP.Numero
-                where compra.idTipoFactura=9 and compra.idSubProyecto=1 and compra.Borrar=0
+                where compra.idTipoFactura=9 and compra.idSubProyecto=1 and compra.Borrar=0 and compra.comprobante like 'IG-%'
                 order by compra.idCompra desc
             ";
             miClase.LlenaGrid(dgv, "compra", sqlQuery);

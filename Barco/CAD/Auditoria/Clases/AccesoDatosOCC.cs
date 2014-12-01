@@ -118,20 +118,23 @@ namespace Barco.CAD.Clases
             sqlQuery = @"
                 SELECT COUNT(distinct idCompraSP)FROM controlAnticiposOCS where idCompraOCS in 
                 (
-	                select idcompra2 from ControlOCLotes where idCompra=30062865 
+	                select idcompra2 from ControlOCLotes where idCompra="+idCompraOCC+@"
                 ) 
             ";
             if (miClase.EjecutaEscalar(sqlQuery) > 0)
             {
-                sqlQuery = @"
-                SELECT distinct idcompraSP FROM controlAnticiposOCS where idCompraOCS in 
-                (
-	                select idcompra2 from ControlOCLotes where idCompra=30062865 
-                ) 
-            ";
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlda = new SqlDataAdapter();
-                sqlda.SelectCommand = new SqlCommand(sqlQuery, Datos.sqlConn);
+                SqlCommand sc = new SqlCommand();
+                sc.Parameters.Add("@vIdCompraOCC", SqlDbType.Int).Value = idCompraOCC;
+                sc.CommandText = @"
+                    SELECT distinct idcompraSP FROM controlAnticiposOCS where idCompraOCS in 
+                        (
+	                        select idcompra2 from ControlOCLotes where idCompra=@vIdCompraOCC
+                        ) 
+                ";
+                sc.Connection = Datos.sqlConn;
+                sqlda.SelectCommand = sc;
                 sqlda.Fill(ds, "controlAnticiposOCS");
                 ds.Tables["controlAnticiposOCS"].Rows[0].ToString();
                 DataRow dr;
@@ -225,29 +228,31 @@ namespace Barco.CAD.Clases
             } 
             DataSet ds = new DataSet();
             SqlDataAdapter sqlda = new SqlDataAdapter();
-            sqlQuery = @"
-                select idCompra2 as idcompra from (
-	                select idCompra2, numero from ControlOCLotes where idCompra in (" + idCompraOCC + @")
+            SqlCommand sc = new SqlCommand();
+            sc.Parameters.Add("@vIdCompraOCC", SqlDbType.Int).Value=idCompraOCC;
+            sc.CommandText = @"
+            select idCompra2 as idcompra from (
+	                select idCompra2 from ControlOCLotes where idCompra in (@vIdCompraOCC)
 	                union
-	                select idcompra2, numero from ControlOCLotes where idCompra in 
+	                select idcompra2 from ControlOCLotes where idCompra in 
 		                (
-			                select idCompra2 from ControlOCLotes where idCompra in (" + idCompraOCC + @")
+			                select idCompra2 from ControlOCLotes where idCompra in (@vIdCompraOCC)
 			                union
 							select idcompra2 from ControlOCLotes where idCompra in 
 								(
-									select idCompra2 from ControlOCLotes where idCompra in (" + idCompraOCC + @")
+									select idCompra2 from ControlOCLotes where idCompra in (@vIdCompraOCC)
 									union
 									select idcompra2 from ControlOCLotes where idCompra in 
 										(
-											select idCompra2 from ControlOCLotes where idCompra in (" + idCompraOCC + @")
+											select idCompra2 from ControlOCLotes where idCompra in (@vIdCompraOCC)
 											union
 											select idcompra2 from ControlOCLotes where idCompra in 
 												(
-													select idCompra2 from ControlOCLotes where idCompra in (" + idCompraOCC + @")
+													select idCompra2 from ControlOCLotes where idCompra in (@vIdCompraOCC)
 													union
 													select idcompra2 from ControlOCLotes where idCompra in 
 														(
-															select idCompra2 from ControlOCLotes where idCompra in (" + idCompraOCC + @")
+															select idCompra2 from ControlOCLotes where idCompra in (@vIdCompraOCC)
 														)
 												)
 										)
@@ -256,7 +261,9 @@ namespace Barco.CAD.Clases
                 )p
                 order by idCompra2 asc
             ";
-            sqlda.SelectCommand = new SqlCommand(sqlQuery, Datos.sqlConn);
+            sc.Connection = Datos.sqlConn;
+            //sqlda.SelectCommand = new SqlCommand(sqlQuery, Datos.sqlConn);
+            sqlda.SelectCommand = sc;
             sqlda.Fill(ds, "compra");
             ds.Tables["compra"].Rows[0].ToString();
             DataRow dr;
@@ -452,14 +459,14 @@ namespace Barco.CAD.Clases
                     {
                         // Hay data.
                         nroDias = Int32.Parse(dato);
-                        if (nroDias > 14)
+                        if (nroDias >= 15)
                         {
                             dgv["diasDesdeOCCaPP", i].Style.BackColor = Color.Red;
                             dgv["diasDesdeOCCaPP", i].Style.ForeColor = Color.White;
                         }
                         else
                         {
-                            if (nroDias >= 0 && nroDias < 15 )
+                            if (nroDias >= 0 && nroDias <= 14 )
                             {
                                 dgv["diasDesdeOCCaPP", i].Style.BackColor = Color.Green; // Dentro de Lo permitido
                                 dgv["diasDesdeOCCaPP", i].Style.ForeColor = Color.White;
@@ -476,7 +483,7 @@ namespace Barco.CAD.Clases
                         DateTime dt1 = DateTime.Now;
                         DateTime dt2 = DateTime.Parse(dgv["fechaIngresoOCC", i].Value.ToString());
                         TimeSpan tiempo = dt1.Subtract(dt2);
-                        if ((tiempo.Days) > 14)
+                        if ((tiempo.Days) >= 15)
                         {
                             dgv["diasDesdeOCCaPP", i].Style.BackColor = Color.Orange;
                         }
