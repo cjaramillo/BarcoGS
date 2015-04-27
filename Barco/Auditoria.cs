@@ -12,10 +12,7 @@ using Barco.CAD;
 using Barco.CAD.Clases;
 using System.Diagnostics;
 using System.IO;
-
-
 using Excel = Microsoft.Office.Interop.Excel;
-
 
 
 
@@ -767,7 +764,8 @@ namespace Barco
 
         private void rbOCC_CheckedChanged(object sender, EventArgs e)
         {
-            int error = 0, idPC = 0, idOCC = 0, idPP=0, idIBG=0;
+            //int idPC = 0;
+            int error = 0, idOCC = 0, idPP=0, idIBG=0;
             if (rbOCC.Checked)
             {
                 resaltaRb(rbOCC);
@@ -2113,6 +2111,7 @@ namespace Barco
                 ExportToExcel(pBar);
             }
         }
+
 
 
         public void ExportToExcel(ProgressBar pBar)

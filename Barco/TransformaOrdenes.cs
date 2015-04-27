@@ -211,6 +211,7 @@ namespace Barco
             formatoDGV(1);
         }
 
+        
         private void dgvOrdenes_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             string numero = dgvOrdenes[1, dgvOrdenes.CurrentCell.RowIndex].Value.ToString();
@@ -218,6 +219,41 @@ namespace Barco
             this.idCliente = miClase.EjecutaEscalar("Select idCliente From Cliente Where Nombre='" + nombre + "'");
             this.idCompra = Int32.Parse(dgvOrdenes[4,dgvOrdenes.CurrentCell.RowIndex].Value.ToString());
             DialogResult dr1;
+            
+            // Validadores solo aplican para OCS:
+            if ((miClase.EjecutaEscalar("select count(*) from compra where usuario<>'OrdenLotes' and idCompra=" + idCompra) > 0))
+            {
+                // No tiene fecha de aprobación de cotización
+                if (miClase.EjecutaEscalar("select count(*) from compra where compra.fechaRevision is null and idCompra=" + idCompra) > 0)
+                {
+                    MessageBox.Show("Ingrese la fecha de aprobación de la cotización e intente nuevamente (pestaña Entrega/Fecha de Revisión)", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Verifica que la aprobación de la cotización sea mayor o igual a la fecha de la orden de compra
+                if (miClase.EjecutaEscalar("select count(*) from compra where compra.fechaRevision<compra.Fecha and idCompra=" + idCompra) > 0)
+                {
+                    MessageBox.Show(@"La cotización nunca pudo haber sido aprobada antes de ser solicitada. Por favor verifique (pestaña Entrega/Fecha de Revisión)", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // No tiene fecha de finalización de Manufactura
+                if (miClase.EjecutaEscalar("select count(*) from compra where compra.fechaEntrega is null and idCompra=" + idCompra) > 0)
+                {
+                    MessageBox.Show("Ingrese la fecha de finalización de manufactura e intente nuevamente (pestaña Entrega/Fecha de Entrega)", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Verifica que la fecha de finalización de manufactura no sea menor que la fecha de aprobación de la cotización.
+                if (miClase.EjecutaEscalar("select count(*) from compra where compra.fechaEntrega<Compra.FechaRevision and idCompra=" + idCompra) > 0)
+                {
+                    MessageBox.Show(@"La mercadería nunca pudo haber sido entregada antes de haber aprobado la cotización. Por favor verifique fecha de entrega " +
+                                @"(finaliza manufactura) y fecha de revisión (aprueba cotización) en la pestaña Entrega", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+
+
             if (Int32.Parse(dgvOrdenes[5, dgvOrdenes.CurrentCell.RowIndex].Value.ToString()) == 0 && Int32.Parse(dgvOrdenes[7, dgvOrdenes.CurrentCell.RowIndex].Value.ToString()) == 0)
             {
                 dr1 =

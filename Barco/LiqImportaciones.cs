@@ -20,6 +20,7 @@ namespace Barco
 
         private Datos miClase = new Datos();
         private string sqlQuery;
+        //private Double result;        NPI para que era :-(
 
         private void cargarData()
         {
@@ -51,7 +52,7 @@ namespace Barco
             bs1.MoveLast();
         }
 
-        private Double result;
+        
 
         private void LiqImportaciones_Load(object sender, EventArgs e)
         {

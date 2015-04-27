@@ -40,9 +40,14 @@
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.respaldaYRestauraIBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.liquidarImportacionesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.transformaDocumentosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.requisicionesAOCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.desbloqueaReqToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ingresoDatosOCSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mReportes = new System.Windows.Forms.ToolStripMenuItem();
             this.mGenerarReportes = new System.Windows.Forms.ToolStripMenuItem();
             this.lblServer = new System.Windows.Forms.Label();
+            this.oCSCantidadesAPedidoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mPrincipal.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -69,7 +74,10 @@
             this.mAuditoríaImportaciones,
             this.testToolStripMenuItem,
             this.respaldaYRestauraIBGToolStripMenuItem,
-            this.liquidarImportacionesToolStripMenuItem});
+            this.liquidarImportacionesToolStripMenuItem,
+            this.transformaDocumentosToolStripMenuItem,
+            this.ingresoDatosOCSToolStripMenuItem,
+            this.oCSCantidadesAPedidoToolStripMenuItem});
             this.mMenu.Name = "mMenu";
             this.mMenu.Size = new System.Drawing.Size(50, 20);
             this.mMenu.Text = "Menu";
@@ -86,6 +94,7 @@
             this.mSolicitarAnticipos.Name = "mSolicitarAnticipos";
             this.mSolicitarAnticipos.Size = new System.Drawing.Size(239, 22);
             this.mSolicitarAnticipos.Text = "Solicitar Anticipos";
+            this.mSolicitarAnticipos.Visible = false;
             this.mSolicitarAnticipos.Click += new System.EventHandler(this.mSolicitarAnticipos_Click);
             // 
             // mReglas
@@ -141,6 +150,36 @@
             this.liquidarImportacionesToolStripMenuItem.Visible = false;
             this.liquidarImportacionesToolStripMenuItem.Click += new System.EventHandler(this.liquidarImportacionesToolStripMenuItem_Click);
             // 
+            // transformaDocumentosToolStripMenuItem
+            // 
+            this.transformaDocumentosToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.requisicionesAOCToolStripMenuItem,
+            this.desbloqueaReqToolStripMenuItem});
+            this.transformaDocumentosToolStripMenuItem.Name = "transformaDocumentosToolStripMenuItem";
+            this.transformaDocumentosToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
+            this.transformaDocumentosToolStripMenuItem.Text = "Transforma Documentos";
+            // 
+            // requisicionesAOCToolStripMenuItem
+            // 
+            this.requisicionesAOCToolStripMenuItem.Name = "requisicionesAOCToolStripMenuItem";
+            this.requisicionesAOCToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.requisicionesAOCToolStripMenuItem.Text = "Requisiciones a OC";
+            this.requisicionesAOCToolStripMenuItem.Click += new System.EventHandler(this.requisicionesAOCToolStripMenuItem_Click);
+            // 
+            // desbloqueaReqToolStripMenuItem
+            // 
+            this.desbloqueaReqToolStripMenuItem.Name = "desbloqueaReqToolStripMenuItem";
+            this.desbloqueaReqToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.desbloqueaReqToolStripMenuItem.Text = "Desbloquea Req.";
+            this.desbloqueaReqToolStripMenuItem.Click += new System.EventHandler(this.desbloqueaReqToolStripMenuItem_Click);
+            // 
+            // ingresoDatosOCSToolStripMenuItem
+            // 
+            this.ingresoDatosOCSToolStripMenuItem.Name = "ingresoDatosOCSToolStripMenuItem";
+            this.ingresoDatosOCSToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
+            this.ingresoDatosOCSToolStripMenuItem.Text = "Ingreso Datos OCS";
+            this.ingresoDatosOCSToolStripMenuItem.Click += new System.EventHandler(this.ingresoDatosOCSToolStripMenuItem_Click);
+            // 
             // mReportes
             // 
             this.mReportes.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -165,6 +204,13 @@
             this.lblServer.Size = new System.Drawing.Size(85, 20);
             this.lblServer.TabIndex = 3;
             this.lblServer.Text = "Servidor: ";
+            // 
+            // oCSCantidadesAPedidoToolStripMenuItem
+            // 
+            this.oCSCantidadesAPedidoToolStripMenuItem.Name = "oCSCantidadesAPedidoToolStripMenuItem";
+            this.oCSCantidadesAPedidoToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
+            this.oCSCantidadesAPedidoToolStripMenuItem.Text = "OCS: Cantidades a Pedido";
+            this.oCSCantidadesAPedidoToolStripMenuItem.Click += new System.EventHandler(this.oCSCantidadesAPedidoToolStripMenuItem_Click);
             // 
             // frmMain
             // 
@@ -205,6 +251,11 @@
         private System.Windows.Forms.ToolStripMenuItem respaldaYRestauraIBGToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem liquidarImportacionesToolStripMenuItem;
         private System.Windows.Forms.Label lblServer;
+        private System.Windows.Forms.ToolStripMenuItem transformaDocumentosToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem requisicionesAOCToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem desbloqueaReqToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ingresoDatosOCSToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem oCSCantidadesAPedidoToolStripMenuItem;
     }
 }
 

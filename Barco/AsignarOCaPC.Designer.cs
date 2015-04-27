@@ -103,7 +103,7 @@
             this.btnAsignar.Name = "btnAsignar";
             this.btnAsignar.Size = new System.Drawing.Size(129, 23);
             this.btnAsignar.TabIndex = 4;
-            this.btnAsignar.Text = "&Asignar OC a PP";
+            this.btnAsignar.Text = "&Asignar PC a OC";
             this.btnAsignar.UseVisualStyleBackColor = true;
             this.btnAsignar.Click += new System.EventHandler(this.btnAsignar_Click);
             // 

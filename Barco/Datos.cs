@@ -417,10 +417,14 @@ namespace Barco
         }
 
 
+
+
+
+
         public string EjecutaSP(string nombreSP, string [,] parametrosIn, string parametroOut, SqlDbType tipoRetorno ) { 
             // Permite ejecutar un SP y retorna un object con el tipo de dato de retorno.
             // Siempre se asume que las matrices tienen 2 columnas y n filas.
-            using (SqlCommand sqlc = new SqlCommand("sp_RespaldosIBG", sqlConn))
+            using (SqlCommand sqlc = new SqlCommand(nombreSP, sqlConn))
             {
                 Conectar();
                 try
@@ -451,7 +455,6 @@ namespace Barco
                     sqlc.Connection.Close();
                 }
             }
-            //sqlc.Connection.Close();
             return "-99";
         }
 

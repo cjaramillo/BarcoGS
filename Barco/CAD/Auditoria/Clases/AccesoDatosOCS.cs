@@ -90,9 +90,9 @@ namespace Barco.CAD
             else
             {
                 // Métodos alternativos: En caso de que sea antigua.
-                if (miClase.EjecutaEscalar("select count(*) from compra where idtipofactura=2 and idcompra=" + idOCS + " and departamento is not null") == 0)
+                if (miClase.EjecutaEscalar("select count(*) from compra where idtipofactura=2 and idcompra=" + idOCS + " and departamento is not null and departamento like 'SP-%'") == 0)
                     return -1;
-                sqlQuery = "select top(1) departamento from compra where idtipofactura=2 and idcompra=" + idOCS + " and departamento is not null order by idcompra desc";
+                sqlQuery = "select top(1) departamento from compra where idtipofactura=2 and idcompra=" + idOCS + " and departamento is not null and departamento like 'SP-%' order by idcompra desc";
                 string nroSP = miClase.EjecutaEscalarStr(sqlQuery);
                 sqlQuery = "select top(1) idcompra from compra where idtipofactura=26 and numero='" + nroSP + "'";
                 return miClase.EjecutaEscalar(sqlQuery); 

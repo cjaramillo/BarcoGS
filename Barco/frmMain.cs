@@ -146,5 +146,35 @@ namespace Barco
             li.Show();
         }
 
+        private void requisicionesAOCToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Transformar t = new Transformar();
+            t.modo = 0;
+            t.MdiParent = this;
+            t.Show();
+        }
+
+        private void desbloqueaReqToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Transformar t = new Transformar();
+            t.modo = 1;
+            t.MdiParent = this;
+            t.Show();
+        }
+
+        private void ingresoDatosOCSToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            InputDataOCS idocs = new InputDataOCS();
+            idocs.MdiParent = this;
+            idocs.Show();
+        }
+
+        private void oCSCantidadesAPedidoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Transformar t = new Transformar();
+            t.modo = 2;
+            t.MdiParent = this;
+            t.Show();
+        }
     }
 }

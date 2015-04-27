@@ -113,6 +113,16 @@ namespace Barco.Properties {
         /// <summary>
         ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap eliminar_jpg {
+            get {
+                object obj = ResourceManager.GetObject("eliminar_jpg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Guardar_22px {
             get {
                 object obj = ResourceManager.GetObject("Guardar 22px", resourceCulture);
